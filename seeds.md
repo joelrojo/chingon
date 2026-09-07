@@ -4,19 +4,20 @@
 
 ## Open items
 
-- **Type studies** — prototype uses a system serif stack (Iowan Old Style / Palatino / Georgia); the real one-word type study is still open.
-- **Reveal choice** — prototype live; judge the four candidates by feel (below).
-- **Fragment** — working line is `technology · time · tierra`. Swap if Joel wants two words only (`technology × tierra`) or a different third T (threshold, thread, tend).
+- **Type studies** — system serif for now (Iowan Old Style / Palatino / Georgia); the one-word type study is still open.
+- **Fragment** — `technology · time · tierra` is shelved. The doorway reveal is only `chingón`. Revisit the fragment behind the door later.
 - **HTTPS enforce** — DNS already points at GitHub Pages (2026-09-06). Flip `https_enforced` after GitHub mints the cert. MX / Google TXT left alone.
 - **Analytics** — **counter.dev** is wired on `/` (`site/index.html`, Pacific UTC−7). Visits/day + referrers; no cookies, no IP fingerprinting, no banner. GoatCounter remains the backup if we ever want paths or self-host.
 
 ## Decided
 
-- **Stack (2026-09-06)** — vanilla JS + Canvas 2D, ES modules, zero dependencies, no build step. Client-side NOAA-style solar math, verified against published LA sun times (solar noon 62.2°, sunset 19:08). Revisit WebGL only if a specific refraction/texture idea demands it. V1 prototype lives in `site/` — dev notes in `site/README.md` (`?h=` hour override, keys 1–4 / `?r=` reveal modes; garden reseeds daily from the Venice date).
+- **Stack (2026-09-06)** — vanilla JS + Canvas 2D, ES modules, zero dependencies, no build step. Client-side NOAA-style solar math still drives the board’s temperature (`?h=` hour override). Garden reseeds daily from the Venice date.
 - **Host (2026-09-06)** — GitHub Pages from `/site` on `joelrojo/chingon`. Free. HTTPS on custom domains is real (Let's Encrypt) once DNS points here — not before. Three.js / WebGL / R3F later still fit: those are static files. Move to Cloudflare Pages only if GLB/HDR assets get large, or we want CF's free privacy analytics + instant custom-domain certs.
 - **Remote (2026-09-06)** — `joelrojo/chingon` on GitHub, public (Pages on a free plan needs a public repo; the site is public anyway).
-- **Fragment (2026-09-06, working)** — `technology · time · tierra`. Technology first (the encompassing system). Time as the third T — already the site's clock, never explained. Tierra last: soil, land, mycelium. English + Spanish is the right mix; equilibrio dropped.
-- **Sound (2026-09-06, revised)** — brown-noise wind rejected. Sparse handpan-adjacent strikes + a barely-there D/A bed. Speaks only while settling.
+- **Doorway (2026-09-06, night)** — topological mycelium-motherboard, not a sunset landscape. Horizon / 3D place reserved for Valle del Sol.
+- **Hex cells (2026-09-06, late)** — a miss. Joel not a fan; don't double down on honeycomb. Order without tiling.
+- **Reveal (2026-09-06, night)** — current in the board writes `chingón` from the rim; wisps keep moving through the letters. Four-candidate prototype closed.
+- **Sound (2026-09-06, night)** — opt-out atmospheric pad (Odyssey / Dune / Matrix / mycelium). No dings. No handpan.
 
 ### Spaceship DNS (keep Google Workspace)
 
@@ -85,20 +86,15 @@ night → astronomical/nautical twilight → civil twilight → morning → midd
 - Midday: brightest, flattest, most exposed.
 - Moon phase: later, per the brief.
 
-## Reveal prototyping (decided open, 2026-09-06 — choose by feel)
+## Reveal (closed, 2026-09-06 night)
 
-Build all four on the same settle mechanic; judge in person, in dusk and night states, desktop and phone:
+The word is the reveal. Current in the board writes `chingón` from the rim vias; wisps keep running through the letters. The four-candidate plan is retired. Hex honeycomb was a miss.
 
-1. The word `chingón` emerges — the type study doubles as the identity work.
-2. A short fragment, possibly solar-dependent — a different line at night than at midday. (Fragment copy: Joel's, when the time comes.)
-3. Word first; deeper stillness yields a fragment.
-4. No words — purely visual alignment: filaments → constellation → geometry resolves.
+## Ambience (2026-09-06 night)
 
-## Ambience (canon that it exists; how is open)
-
-- Same physics as everything else: `E` maps to roughness/filtering; stillness resolves toward a clear low tone over a wind bed.
-- Opt-in without conventional UI — candidates to prototype: first intentional gesture enables audio; a single faint element that behaves like an object in the environment, not a button; a hold/long-press.
-- Web Audio; generative or one long seamless loop. Silence always a valid state. No autoplay fights with the browser.
+- Opt-out. Starts with the visit (after the first pointer if the browser blocks autoplay).
+- Continuous atmosphere — no discrete notes. `E` roughens the air; stillness deepens the floor.
+- Odyssey / Dune / Matrix / mycelium. Not a soundtrack, not a ding.
 
 ## Mobile posture (proposed)
 
@@ -115,7 +111,7 @@ Build all four on the same settle mechanic; judge in person, in dusk and night s
 ## Experience tests (V1 criteria, runnable)
 
 1. Land cold: do you sense intention within three seconds, before touching anything?
-2. Does it read as a place you arrived at, rather than a page that loaded?
+2. Does it read as a living system, rather than a page that loaded?
 3. Move: is disturbance subtle, physical, spatial — beautiful but clearly not the reward?
 4. Stop: does settling feel like physics, never a timer? Does something reveal?
 5. Visit at ~9 AM, 1 PM, 6 PM, 11 PM Venice time: four different rooms?

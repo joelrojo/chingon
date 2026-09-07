@@ -3,7 +3,7 @@
 import { sunPosition, veniceNow, veniceDaySeed, palette } from './solar.js';
 import { Settle } from './settle.js';
 import { Field } from './field.js';
-import { Reveal, MODES } from './reveal.js';
+import { Reveal } from './reveal.js';
 import { Ambience } from './sound.js';
 import { clamp, mulberry32 } from './util.js';
 
@@ -17,11 +17,6 @@ const settle = new Settle(reduced);
 const field = new Field(cv, settle, seed);
 const reveal = new Reveal(mulberry32(seed ^ 0x51ab3));
 
-if (params.has('r')) {
-  const m = params.get('r');
-  reveal.mode = MODES.includes(m) ? m : MODES[(parseInt(m, 10) || 1) - 1] || 'word';
-}
-
 let W = 0, H = 0;
 function resize() {
   W = innerWidth;
@@ -29,14 +24,15 @@ function resize() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
   field.resize(W, H, dpr);
   reveal.layout(W, H);
+  reveal.bindBoard(field.nodes);
+  field.graft(reveal);
 }
 addEventListener('resize', resize);
 resize();
 
-// ---- input: presence as physical force ----
 let lx = 0, ly = 0, lt = 0;
 addEventListener('pointermove', (e) => {
-  field.pointer(e.clientX / W - 0.5, e.clientY / H - 0.5);
+  unlockSound();
   if (reduced) return;
   const t = performance.now();
   if (lt) {
@@ -49,25 +45,31 @@ addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 addEventListener('pointerdown', (e) => {
+  unlockSound();
   if (!reduced) settle.tap(e.clientX, e.clientY);
 });
 
-// reveal candidates, judged by feel (1 word · 2 fragment · 3 both · 4 visual)
-addEventListener('keydown', (e) => {
-  const i = parseInt(e.key, 10);
-  if (i >= 1 && i <= 4) reveal.mode = MODES[i - 1];
-});
-
-// ---- sound: opt-in, an object in the environment ----
 const amb = new Ambience();
 const btn = document.getElementById('sound');
 btn.hidden = false;
+btn.setAttribute('aria-pressed', 'true');
 btn.addEventListener('pointerdown', (e) => e.stopPropagation());
 btn.addEventListener('click', () => {
   btn.setAttribute('aria-pressed', String(amb.toggle()));
 });
 
-// ---- the clock is the environment ----
+function syncSoundBtn() {
+  btn.setAttribute('aria-pressed', String(amb.on || amb.wanted));
+}
+
+function unlockSound() {
+  if (!amb.wanted || amb.on) return;
+  amb.start().then(syncSoundBtn);
+}
+
+amb.start().then(syncSoundBtn);
+addEventListener('keydown', unlockSound, { once: true });
+
 let solar = sunPosition(veniceNow(overrideHour));
 setInterval(() => { solar = sunPosition(veniceNow(overrideHour)); }, 1000);
 
@@ -83,7 +85,6 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// quiet debug handle (no UI, no logging)
 window.__c = { settle, reveal, field, get solar() { return solar; } };
 
 function loop(now) {
@@ -94,8 +95,8 @@ function loop(now) {
 
   settle.update(dt);
   const pal = palette(solar.altitude, solar.azimuth);
-  field.render(dt, t, solar, pal, settle.R, settle.E,
-    (ctx) => reveal.draw(ctx, pal, settle.R, t));
+  field.render(dt, t, pal, settle.R, settle.E,
+    (ctx) => reveal.draw(ctx, pal, settle.R, settle.E, t, dt));
   amb.update(dt, settle.E, settle.R);
 
   requestAnimationFrame(loop);

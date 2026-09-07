@@ -11,8 +11,7 @@ python3 -m http.server 8123 -d site
 Quiet dev affordances (not UI):
 
 - `?h=19.1` — override the Venice hour (e.g. `?h=23` for night, `?h=6.4` for dawn)
-- `?r=word|fragment|both|visual` or keys `1–4` — switch the reveal candidate
-- The garden reseeds daily from the Venice date; layouts are stable within a day.
+- The board reseeds daily from the Venice date; layouts are stable within a day.
 
 Live: GitHub Pages from this folder → `chingon.io` once Spaceship A records are set (see `../seeds.md`). `CNAME` in this folder is `chingon.io`.
 

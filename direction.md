@@ -27,8 +27,9 @@ The core idea: **a small living system on the internet.** Not a webpage represen
 
 Internal shorthand (never on the site):
 
-- **zen garden × vaquero garden × digital ecosystem**
+- **mycelium × motherboard × desert topo**
 - **ancient wisdom, new infrastructure**
+- Horizon / sunset / 3D place is Valle del Sol’s language, not the doorway’s.
 
 Eventually this may grow into a broader digital garden — field notes, ideas, manifestos, experiments, Valle del Sol, other artifacts. For now: almost radically simple.
 
@@ -57,14 +58,14 @@ Most digital products reward increasing input: click, scroll, tap, swipe, consum
 
 ### Presence reveals information
 
-The visitor arrives in a living environment. Moving the mouse, trackpad, device, or finger subtly disturbs it: particles move, contour lines bend, mycelial filaments withdraw, layers shift in parallax, grasses lean, light refracts, geometry disorders — the visitor is exerting a physical force. Movement should be beautiful, but it is not the reward.
+The visitor arrives in a living environment. Moving the mouse, trackpad, device, or finger subtly disturbs it: traces scatter, filaments withdraw, signals lose their path — the visitor is exerting a physical force. Movement should be beautiful, but it is not the reward.
 
-When the visitor becomes still, the system gradually returns toward equilibrium. As it settles: filaments reconnect, geometry aligns, visual noise decreases, previously invisible patterns emerge — a word may slowly appear, the name `chingón` may emerge, another hidden element may become perceptible.
+When the visitor becomes still, current in the board runs inward. Charge leaves the rim vias, follows the net, and writes the word `chingón` at the center. After it forms, little wisps keep moving through the letters themselves. Natural, almost accidental — not a timed unlock. Movement dissolves the word again.
 
 The visitor asks: *what can I make this do?*
 The system answers: *what happens when you stop doing?*
 
-Never a gimmicky "wait 5 seconds to unlock content" mechanism. Natural, almost accidental. What exactly emerges is deliberately open — see V1.
+Never a gimmicky "wait 5 seconds to unlock content" mechanism. Stillness should start assembling the word within a breath or two.
 
 ### Motion is simulation, not animation
 
@@ -72,27 +73,25 @@ Physical principles over web-animation conventions: inertia, gravity, decay, spr
 
 ## Environment
 
-### An abstracted place *(decided 2026-09-06)*
+### A topological board *(decided 2026-09-06, revised same night)*
 
-The site is a place, and it should feel like entering a tiny world — not flat, not necessarily literal 3D or photorealistic. A horizon and one solar body ground the scene as somewhere you have arrived. The terrain is the ambiguous field: sand, stone, water, palms, agave, sparse grasses, subtle terrain, roots, mycelial networks, topographic contours, geodesic arcs, irrigation channels, circuit traces, constellations — forms that merge into one another.
+`/` is not a sunset landscape and not a 3D depth space. That language belongs to Valle del Sol. The doorway is a **full-screen topological view**: mycelium grown on a motherboard, a neural net, a circuit, a desert contour map — the same thing seen from above.
 
-**Foreground → middle ground → horizon.**
+Orthographic, not scenic. No horizon. No solar disc. Desert in the materials (obsidian, dust, rust, bone, solar gold as trace metal) rather than as a pictured place.
 
-A viewer should sometimes be uncertain whether they are looking at a zen garden, a circuit, a ranch landscape, a topographic map, a fungal network, a star system, an irrigation plan, or a piece of unknown machinery. That ambiguity is desirable. Not fully abstract; not the moodboard landscape reproduced.
+The plate should feel **ordered, not scattered** — a living net (mycelium, neural, circuit), not random decoration. Hex honeycomb was a miss; don't lock the geometry to a tile. Never a decorative flower-of-life overlay.
+
+A viewer should be uncertain whether they are looking at a PCB, a fungal network, a topographic plate, or unknown machinery. That ambiguity is the point. The word is of the board, not placed on it.
 
 ### Solar time — Venice, California
 
-The environment is anchored to **Venice / Los Angeles solar time**, not the visitor's local time. Someone visiting from Tokyo at 3 AM California time encounters CHINGÓN at night. The site is a place; they are visiting it.
-
-Track real astronomical conditions client-side: solar altitude and azimuth, sunrise, sunset, civil and nautical twilight, seasonal day length; potentially moon phase later. No conventional clock —
+The board is still anchored to **Venice / Los Angeles solar time**, not the visitor's local time. Someone visiting from Tokyo at 3 AM California time encounters a night board. No conventional clock —
 
 > **The environment is the clock.**
 
-Midday: brighter, flatter, warmer, more exposed. Near sunset: shadows lengthen, solar gold enters. Night: the palette collapses toward obsidian and moon blue, and different hidden structures may become visible.
+Midday: brighter, flatter, more exposed traces. Near sunset: solar gold and rust enter the metal. Night: the field collapses toward obsidian and moon blue.
 
-Never announce it. People who notice, notice.
-
-Astronomy is the deterministic V1 base — elemental, quiet, timeless. Weather as a later atmospheric modifier: `seeds.md`.
+Never announce it. People who notice, notice. Weather as a later atmospheric modifier: `seeds.md`.
 
 ## Aesthetics
 
@@ -127,9 +126,9 @@ Extremely restrained. The working tension: **humanist / literary serif × precis
 
 No faux-western fonts, no fantasy typography, no aggressive futurism. Timeless. The accent in **CHINGÓN** is enough cultural specificity on its own. No logo mark — the word carries the identity. Don't invent a symbol unless the experience later organically demands one.
 
-### Sound *(opt-in; 2026-09-06, revised same day)*
+### Sound *(opt-out; 2026-09-06, revised same night)*
 
-Sparse, ethereal, handpan-adjacent metal tones — not wind, not noise, not a soundtrack. Disturbance quiets them; stillness lets a few notes speak. Opt-in via a near-invisible glyph. Silence remains a fully valid state.
+Ethereal atmosphere, not notes. A landscape you are already inside — Odyssey drone, Dune desert floor, Matrix dust, mycelium underneath. No dings, no handpan, no melody that announces itself. Starts with the visit; a near-invisible glyph turns it off. Browsers may wait for the first pointer before audio can run; after that it is on until you opt out.
 
 ## Content
 
@@ -183,17 +182,17 @@ Every visit begins again. The visitor arrives. Disturbs the system. The system s
 Do not build the future site yet. V1 succeeds if:
 
 1. Someone lands there and immediately senses intention.
-2. It feels like a place rather than a page.
-3. Mouse/touch movement creates subtle disturbance and spatial depth.
-4. Stillness allows the system to settle and reveal something.
-5. The environment responds to Venice solar time.
+2. It feels like a living system rather than a page.
+3. Mouse/touch movement disturbs the network; stillness lets it organize.
+4. Stillness draws matter in from the borders and assembles `chingón` — quickly, not after a long wait.
+5. The board’s temperature follows Venice solar time.
 6. Nature and computation feel like one underlying system.
 7. The experience works beautifully with almost no words.
 8. Nothing looks like a portfolio.
 9. Nothing requires explanation.
 10. The visitor leaves slightly more curious than when they arrived.
 
-**The reveal is deliberately undecided** *(2026-09-06)*: prototype four candidates on the same settle mechanic and choose by feel — the word `chingón` emerging; a short solar-time fragment; word first, fragment on deeper stillness; purely visual alignment. Plan in `seeds.md`.
+**The reveal is the word** *(2026-09-06, revised 2026-09-06 night)*: current in the board writes `chingón` from the rim inward. Wisps keep running through the letters after they form. Not a fragment. Not a sunset caption.
 
 ## Technical posture
 

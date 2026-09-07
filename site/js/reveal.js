@@ -1,25 +1,19 @@
-// what stillness reveals. four candidates, chosen by feel (keys 1–4):
-//   word — CHINGÓN emerges as a constellation of settling points
-//   fragment — a short line surfaces
-//   both — the word first, the fragment on deeper stillness
-//   visual — nothing written; alignment itself is the reveal
+// the word is current in the board. vias at the rim write chingón;
+// after it forms, charge keeps wisping through the letters.
 
-import { clamp, lerp, smoothstep, mixc, hex } from './util.js';
-
-export const MODES = ['word', 'fragment', 'both', 'visual'];
+import { clamp, lerp, smoothstep, mixc } from './util.js';
 
 const SERIF = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
-const MONO = 'ui-monospace,"SF Mono",Menlo,Consolas,monospace';
-
-const GOLD = hex('#C89550');
+const TAU = Math.PI * 2;
 
 export class Reveal {
   constructor(rand) {
     this.rand = rand;
-    this.mode = 'word';
     this.sparks = [];
     this.edges = [];
-    this.fragment = 'technology · time · tierra';
+    this.adj = [];
+    this.wisps = [];
+    this.positions = [];
     this.w = 0; this.h = 0;
   }
 
@@ -30,7 +24,7 @@ export class Reveal {
     const off = document.createElement('canvas');
     const octx = off.getContext('2d');
     octx.font = `500 ${fs}px ${SERIF}`;
-    const tracking = fs * 0.36;
+    const tracking = fs * 0.34;
     const widths = [...word].map((ch) => octx.measureText(ch).width);
     const totalW = widths.reduce((a, b) => a + b, 0) + tracking * (word.length - 1);
 
@@ -48,25 +42,23 @@ export class Reveal {
 
     const img = octx.getImageData(0, 0, off.width, off.height).data;
     const raw = [];
-    const step = 5;
+    const step = 4;
     for (let yy = 0; yy < off.height; yy += step) {
       for (let xx = 0; xx < off.width; xx += step) {
         if (img[(yy * off.width + xx) * 4 + 3] > 140) raw.push([xx, yy]);
       }
     }
-    // shuffle for even thinning
     for (let i = raw.length - 1; i > 0; i--) {
       const j = Math.floor(this.rand() * (i + 1));
       [raw[i], raw[j]] = [raw[j], raw[i]];
     }
 
-    const dispW = Math.min(w * 0.66, 680);
+    const dispW = Math.min(w * 0.74, 760);
     const scale = dispW / totalW;
-    const cx = w / 2, cy = h * 0.345;
-    // spacing from actual glyph coverage, not the text box
-    const target = 190;
+    const cx = w / 2, cy = h / 2;
+    const target = 300;
     const glyphArea = raw.length * (step * scale) * (step * scale);
-    const minD = Math.max(3, Math.sqrt(glyphArea / target) * 0.9);
+    const minD = Math.max(2.5, Math.sqrt(glyphArea / target) * 0.86);
 
     const pts = [];
     for (const [xx, yy] of raw) {
@@ -78,101 +70,194 @@ export class Reveal {
         if (dx * dx + dy * dy < minD * minD) { ok = false; break; }
       }
       if (ok) pts.push({ tx: px, ty: py });
-      if (pts.length >= 340) break;
+      if (pts.length >= 440) break;
     }
 
+    const margin = Math.min(w, h) * 0.045;
     this.sparks = pts.map((p) => {
-      const a = this.rand() * Math.PI * 2;
-      const d = (0.16 + this.rand() * 0.5) * Math.min(w, h);
+      const dl = p.tx, dr = w - p.tx, dt = p.ty, db = h - p.ty;
+      const nearest = Math.min(dl, dr, dt, db);
+      let side = 'b';
+      if (nearest === dl) side = 'l';
+      else if (nearest === dr) side = 'r';
+      else if (nearest === dt) side = 't';
       return {
-        tx: p.tx, ty: p.ty,
-        hx: p.tx + Math.cos(a) * d,
-        hy: p.ty + Math.sin(a) * d * 0.7,
-        st: 0.28 + this.rand() * 0.36,
-        ph: this.rand() * Math.PI * 2,
+        tx: p.tx, ty: p.ty, side,
+        hx: side === 'l' ? margin : side === 'r' ? w - margin : p.tx,
+        hy: side === 't' ? margin : side === 'b' ? h - margin : p.ty,
+        from: null, pad: null,
+        st: this.rand() * 0.1,
+        ph: this.rand() * TAU,
       };
     });
 
-    // constellation edges: each point to its 2 nearest, deduped
+    this._linkLetters(minD * 1.55);
+    this.wisps.length = 0;
+  }
+
+  _linkLetters(maxD) {
+    const pts = this.sparks;
+    const maxD2 = maxD * maxD;
     const eset = new Set();
     this.edges = [];
-    for (let i = 0; i < this.sparks.length; i++) {
-      const si = this.sparks[i];
-      let n1 = -1, n2 = -1, d1 = Infinity, d2 = Infinity;
-      for (let j = 0; j < this.sparks.length; j++) {
+    this.adj = pts.map(() => []);
+
+    const add = (i, j) => {
+      const key = i < j ? i * 4000 + j : j * 4000 + i;
+      if (eset.has(key)) return;
+      eset.add(key);
+      this.edges.push([i, j]);
+      this.adj[i].push(j);
+      this.adj[j].push(i);
+    };
+
+    for (let i = 0; i < pts.length; i++) {
+      const si = pts[i];
+      const near = [];
+      for (let j = 0; j < pts.length; j++) {
         if (i === j) continue;
-        const sj = this.sparks[j];
-        const d = (si.tx - sj.tx) ** 2 + (si.ty - sj.ty) ** 2;
-        if (d < d1) { d2 = d1; n2 = n1; d1 = d; n1 = j; }
-        else if (d < d2) { d2 = d; n2 = j; }
+        const d = (si.tx - pts[j].tx) ** 2 + (si.ty - pts[j].ty) ** 2;
+        if (d < maxD2) near.push([d, j]);
       }
-      for (const n of [n1, n2]) {
-        if (n < 0) continue;
-        const key = i < n ? i * 1000 + n : n * 1000 + i;
-        if (!eset.has(key)) { eset.add(key); this.edges.push([i, n]); }
-      }
+      near.sort((a, b) => a[0] - b[0]);
+      for (const [, j] of near.slice(0, 2)) add(i, j);
     }
   }
 
-  draw(ctx, pal, R, t) {
-    if (this.mode === 'visual') return;
+  // snap each spark's origin onto a rim via — current leaves the plate
+  bindBoard(nodes) {
+    const { w, h } = this;
+    const band = Math.min(w, h) * 0.2;
+    const sides = { l: [], r: [], t: [], b: [] };
+    for (const n of nodes) {
+      if (n.bx < band) sides.l.push(n);
+      if (n.bx > w - band) sides.r.push(n);
+      if (n.by < band) sides.t.push(n);
+      if (n.by > h - band) sides.b.push(n);
+    }
 
-    const wantWord = this.mode === 'word' || this.mode === 'both';
-    const wantFrag = this.mode === 'fragment' || this.mode === 'both';
+    for (const sp of this.sparks) {
+      const pool = sides[sp.side];
+      if (!pool.length) continue;
+      const aimX = sp.side === 'l' ? band * 0.35 : sp.side === 'r' ? w - band * 0.35 : sp.tx;
+      const aimY = sp.side === 't' ? band * 0.35 : sp.side === 'b' ? h - band * 0.35 : sp.ty;
+      let best = pool[0], bestD = Infinity;
+      for (const n of pool) {
+        const d = (n.bx - aimX) ** 2 + (n.by - aimY) ** 2;
+        if (d < bestD) { bestD = d; best = n; }
+      }
+      sp.from = best;
+      sp.hx = best.bx;
+      sp.hy = best.by;
+    }
+  }
 
-    if (wantWord && R > 0.28) {
-      const night = pal.night;
-      const col = mixc(pal.ink, GOLD, night * 0.35);
-      const positions = [];
-      for (const sp of this.sparks) {
-        const ki = smoothstep(sp.st, sp.st + 0.42, R);
-        const e = 1 - Math.pow(1 - ki, 3);
-        const drift = (1 - e) * 9;
-        const x = lerp(sp.hx + Math.sin(t * 0.4 + sp.ph) * drift, sp.tx, e);
-        const y = lerp(sp.hy + Math.cos(t * 0.33 + sp.ph) * drift, sp.ty, e);
-        positions.push([x, y, ki]);
+  draw(ctx, pal, R, E, t, dt = 0.016) {
+    if (R < 0.02 && E < 0.02) return;
+    const col = mixc(pal.ink, pal.glow, pal.night * 0.25);
+    const positions = this.positions;
+    positions.length = 0;
+
+    for (const sp of this.sparks) {
+      const ox = sp.from ? sp.from.x : sp.hx;
+      const oy = sp.from ? sp.from.y : sp.hy;
+      const ki = smoothstep(sp.st, 0.58 + sp.st * 0.18, R);
+      const e = ki * ki * (3 - 2 * ki);
+      const hold = e * (1 - clamp(E * 1.7, 0, 0.88));
+      const mid = Math.sin(hold * Math.PI);
+      const jit = hold * hold * 0.85;
+      const x = lerp(ox, sp.tx, hold)
+        + Math.sin(t * 0.55 + sp.ph) * mid * 14
+        + Math.sin(t * 1.35 + sp.ph) * jit;
+      const y = lerp(oy, sp.ty, hold)
+        + Math.cos(t * 0.42 + sp.ph) * mid * 10
+        + Math.cos(t * 1.1 + sp.ph * 1.3) * jit * 0.7;
+      positions.push([x, y, hold]);
+    }
+
+    // solder: short traces from nearby vias into the letter
+    const solder = smoothstep(0.4, 0.86, R) * (1 - clamp(E * 1.3, 0, 0.75));
+    if (solder > 0.04) {
+      ctx.beginPath();
+      for (let i = 0; i < this.sparks.length; i++) {
+        const pad = this.sparks[i].pad;
+        const p = positions[i];
+        if (!pad || p[2] < 0.4) continue;
+        ctx.moveTo(pad.x, pad.y);
+        ctx.lineTo(p[0], p[1]);
       }
-      // constellation lines bind late, once points are nearly home
-      const lineK = smoothstep(0.72, 0.98, R);
-      if (lineK > 0.01) {
-        ctx.beginPath();
-        for (const [i, j] of this.edges) {
-          const a = positions[i], b = positions[j];
-          if (a[2] < 0.8 || b[2] < 0.8) continue;
-          ctx.moveTo(a[0], a[1]);
-          ctx.lineTo(b[0], b[1]);
-        }
-        ctx.strokeStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${0.16 * lineK})`;
-        ctx.lineWidth = 0.6;
-        ctx.stroke();
+      ctx.strokeStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${0.28 * solder})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    const lineK = smoothstep(0.38, 0.84, R) * (1 - clamp(E * 1.4, 0, 0.8));
+    if (lineK > 0.02) {
+      ctx.beginPath();
+      for (const [i, j] of this.edges) {
+        const a = positions[i], b = positions[j];
+        if (a[2] < 0.32 || b[2] < 0.32) continue;
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
       }
-      for (const [x, y, ki] of positions) {
-        if (ki <= 0.01) continue;
-        const a = ki * (0.35 + 0.65 * smoothstep(0.4, 0.9, R));
-        // soft halo + core
-        ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a * 0.14})`;
-        ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 6.2832); ctx.fill();
-        ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a})`;
-        ctx.beginPath(); ctx.arc(x, y, 1.05, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${0.32 * lineK})`;
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+    }
+
+    this._wisps(ctx, pal, col, R, E, dt);
+
+    for (const [x, y, hold] of positions) {
+      if (hold < 0.01) continue;
+      const travel = Math.sin(hold * Math.PI);
+      const pulse = 0.82 + 0.18 * Math.sin(t * 2.4 + x * 0.04 + y * 0.03);
+      const a = (0.24 + 0.76 * hold) * (0.55 + 0.45 * smoothstep(0.06, 0.55, R)) * pulse;
+      ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a * (0.12 + 0.16 * travel)})`;
+      ctx.beginPath(); ctx.arc(x, y, 2.6 + travel * 1.2, 0, TAU); ctx.fill();
+      ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a})`;
+      ctx.beginPath(); ctx.arc(x, y, 1.05, 0, TAU); ctx.fill();
+    }
+  }
+
+  _wisps(ctx, pal, col, R, E, dt) {
+    const still = R > 0.55 && E < 0.22;
+    if (still && this.wisps.length < 22 && this.edges.length && Math.random() < dt * 10 * R) {
+      const [i, j] = this.edges[(Math.random() * this.edges.length) | 0];
+      const a = this.positions[i], b = this.positions[j];
+      if (a && b && a[2] > 0.7 && b[2] > 0.7) {
+        this.wisps.push({ i, j, t: 0, dur: 0.45 + this.rand() * 0.35, hops: 0 });
       }
     }
 
-    if (wantFrag) {
-      const f0 = this.mode === 'both' ? 0.86 : 0.55;
-      const a = smoothstep(f0, f0 + 0.12, R) * 0.52;
-      if (a > 0.01) {
-        const col = pal.ink;
-        const size = clamp(this.w * 0.011, 10, 13.5);
-        ctx.save();
-        ctx.font = `400 ${size}px ${MONO}`;
-        if ('letterSpacing' in ctx) ctx.letterSpacing = '0.32em';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a})`;
-        const y = this.mode === 'both' ? this.h * 0.565 : this.h * 0.5;
-        ctx.fillText(this.fragment, this.w / 2 + size * 0.16, y);
-        ctx.restore();
+    const glow = pal.glow;
+    for (let n = this.wisps.length - 1; n >= 0; n--) {
+      const w = this.wisps[n];
+      w.t += dt;
+      let k = w.t / w.dur;
+      if (k >= 1) {
+        if (still && w.hops < 4) {
+          const nexts = this.adj[w.j].filter((q) => q !== w.i);
+          if (nexts.length) {
+            const nx = nexts[(Math.random() * nexts.length) | 0];
+            w.i = w.j; w.j = nx; w.t = 0; w.hops++;
+            k = 0;
+          } else {
+            this.wisps.splice(n, 1);
+            continue;
+          }
+        } else {
+          this.wisps.splice(n, 1);
+          continue;
+        }
       }
+      const a = this.positions[w.i], b = this.positions[w.j];
+      if (!a || !b || a[2] < 0.45 || b[2] < 0.45) { this.wisps.splice(n, 1); continue; }
+      const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k);
+      const fade = Math.sin(k * Math.PI) * (1 - clamp(E * 2, 0, 0.7));
+      ctx.fillStyle = `rgba(${glow[0] | 0},${glow[1] | 0},${glow[2] | 0},${0.85 * fade})`;
+      ctx.beginPath(); ctx.arc(x, y, 2.0, 0, TAU); ctx.fill();
+      ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${0.2 * fade})`;
+      ctx.beginPath(); ctx.arc(x, y, 6.2, 0, TAU); ctx.fill();
     }
   }
 }

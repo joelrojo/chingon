@@ -1,20 +1,20 @@
 // the settle mechanic. one scalar drives everything.
-// movement disturbs. stillness reveals. the garden keeps no footprints.
+// movement disturbs. stillness reveals. the board keeps no footprints.
 
 import { clamp } from './util.js';
 
 export class Settle {
   constructor(reduced = false) {
     this.reduced = reduced;
-    this.E = 0.45;  // disturbance energy — arrival is itself a disturbance
-    this.R = 0;     // revelation — accrues only in stillness
+    this.E = 0.18;
+    this.R = 0;
     this.impulses = [];
     this.time = 0;
   }
 
   input(x, y, vx, vy, speedNorm) {
     const target = clamp(speedNorm * 1.5, 0, 1);
-    if (target > this.E) this.E += (target - this.E) * 0.45;
+    if (target > this.E) this.E += (target - this.E) * 0.5;
 
     const imps = this.impulses;
     const last = imps[imps.length - 1];
@@ -36,31 +36,26 @@ export class Settle {
   update(dt) {
     this.time += dt;
 
-    // energy decays like settling sand — never a timer
-    const tau = this.E > 0.4 ? 2.4 : 3.4;
+    const tau = this.E > 0.25 ? 0.9 : 1.35;
     this.E *= Math.exp(-dt / tau);
     if (this.E < 0.0004) this.E = 0;
 
-    for (const im of this.impulses) im.power *= Math.exp(-dt / 0.85);
+    for (const im of this.impulses) im.power *= Math.exp(-dt / 0.7);
     while (this.impulses.length && this.impulses[0].power < 0.02) this.impulses.shift();
 
     if (this.reduced) {
-      // reduced motion: no turbulence; revelation arrives with quiet time alone
-      this.R = clamp(this.R + dt / 7, 0, 1);
+      this.R = clamp(this.R + dt / 2.4, 0, 1);
       return;
     }
 
-    if (this.E < 0.045) {
-      const still = 1 - this.E / 0.045;
-      this.R = clamp(this.R + (dt / 8.5) * still, 0, 1);
+    if (this.E < 0.10) {
+      const still = 1 - this.E / 0.10;
+      this.R = clamp(this.R + (dt / 2.0) * still, 0, 1);
     } else {
-      // movement dissolves the reveal faster than stillness built it
-      this.R = clamp(this.R - dt * this.E * 0.9, 0, 1);
+      this.R = clamp(this.R - dt * this.E * 1.8, 0, 1);
     }
   }
 
-  // local displacement from recent disturbance, sampled by every system.
-  // quadratic falloff — cheap enough for thousands of samples per frame.
   field(x, y, out) {
     let dx = 0, dy = 0, mag = 0;
     const R2 = 170 * 170;

@@ -76,7 +76,7 @@ noscript .still {
   inset: 0;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #131519 0%, #1d242e 46%, #191a19 46.2%, #141412 100%);
+  background: #1C1C1A;
 }
 noscript .still span {
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;

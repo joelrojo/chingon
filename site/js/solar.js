@@ -83,99 +83,41 @@ const C = {
 };
 export const COLORS = C;
 
-// each stop: [altitude, state]
+// board temperature by solar altitude. no sky, no ground plane.
 const STOPS = [
-  [-18, { // deep night
-    skyTop: hex('#0d0e12'), skyMid: hex('#12141a'), skyHor: hex('#1e2530'),
-    groundFar: hex('#181917'), groundNear: hex('#121210'),
-    line: hex('#6d7988'), lineA: 0.16,
-    filament: hex('#a8b8ca'), filamentA: 0.5,
-    ink: hex('#d3dce6'),
-    star: 1.0, sunA: 0,
-    halo: hex('#c9d6e4'),
-    stone: hex('#0e0e0d'),
-    grass: hex('#232620'),
+  [-18, {
+    field: hex('#0b0b0a'), field2: hex('#121110'),
+    line: hex('#5c6774'), lineA: 0.14,
+    filament: hex('#8a9aab'), filamentA: 0.52,
+    ink: hex('#d5dde6'), glow: hex('#c9d6e4'),
   }],
-  [-10, {
-    skyTop: hex('#0f1117'), skyMid: hex('#161a22'), skyHor: hex('#26303d'),
-    groundFar: hex('#1a1b19'), groundNear: hex('#131311'),
-    line: hex('#717c8a'), lineA: 0.15,
-    filament: hex('#aab8c8'), filamentA: 0.48,
-    ink: hex('#d5dde6'),
-    star: 0.85, sunA: 0,
-    halo: hex('#c9d6e4'),
-    stone: hex('#0f0f0e'),
-    grass: hex('#242721'),
+  [-6, {
+    field: hex('#100f0d'), field2: hex('#181614'),
+    line: hex('#6a6256'), lineA: 0.15,
+    filament: hex('#a8906a'), filamentA: 0.55,
+    ink: hex('#e4d8c2'), glow: hex('#d4a46a'),
   }],
-  [-4, { // civil twilight
-    skyTop: hex('#171b24'), skyMid: hex('#2a2f3c'), skyHor: hex('#6e4e3a'),
-    groundFar: hex('#242320'), groundNear: hex('#181816'),
-    line: hex('#7d7466'), lineA: 0.17,
-    filament: hex('#bda37c'), filamentA: 0.5,
-    ink: hex('#e4d8c2'),
-    star: 0.35, sunA: 0.15,
-    halo: hex('#d58c5b'),
-    stone: hex('#131311'),
-    grass: hex('#2a2b22'),
+  [2, {
+    field: hex('#161310'), field2: hex('#1f1b16'),
+    line: hex('#7a6c55'), lineA: 0.16,
+    filament: hex('#c89550'), filamentA: 0.60,
+    ink: hex('#ecdfc9'), glow: hex('#e0a065'),
   }],
-  [1, { // rise / set
-    skyTop: hex('#2b3140'), skyMid: hex('#5d5450'), skyHor: hex('#ca8757'),
-    groundFar: hex('#37332b'), groundNear: hex('#262420'),
-    line: hex('#8b8070'), lineA: 0.20,
-    filament: hex('#c89550'), filamentA: 0.55,
-    ink: hex('#ecdfc9'),
-    star: 0.1, sunA: 0.9,
-    halo: hex('#e0a065'),
-    stone: hex('#191813'),
-    grass: hex('#33342a'),
+  [14, {
+    field: hex('#1c1914'), field2: hex('#272218'),
+    line: hex('#6b5d45'), lineA: 0.16,
+    filament: hex('#b3873f'), filamentA: 0.52,
+    ink: hex('#e8dfc8'), glow: hex('#c89550'),
   }],
-  [7, { // golden hour
-    skyTop: hex('#5f6b7c'), skyMid: hex('#9d8a75'), skyHor: hex('#d8a76e'),
-    groundFar: hex('#7f7159'), groundNear: hex('#584f3f'),
-    line: hex('#48412f'), lineA: 0.34,
-    filament: hex('#b3873f'), filamentA: 0.5,
-    ink: hex('#2e2b25'),
-    star: 0, sunA: 1,
-    halo: hex('#e2ad6c'),
-    stone: hex('#28241b'),
-    grass: hex('#42422f'),
-  }],
-  [16, { // morning / afternoon
-    skyTop: hex('#8b98a4'), skyMid: hex('#bab094'), skyHor: hex('#e0cead'),
-    groundFar: hex('#af9f82'), groundNear: hex('#87775c'),
-    line: hex('#584e3a'), lineA: 0.36,
-    filament: hex('#8f6f38'), filamentA: 0.44,
-    ink: hex('#2b2823'),
-    star: 0, sunA: 1,
-    halo: hex('#e6c690'),
-    stone: hex('#332d20'),
-    grass: hex('#4c4e3a'),
-  }],
-  [32, {
-    skyTop: hex('#9caab4'), skyMid: hex('#c7bda2'), skyHor: hex('#e4d6b8'),
-    groundFar: hex('#bcac8e'), groundNear: hex('#948364'),
-    line: hex('#5f553f'), lineA: 0.36,
-    filament: hex('#8a6c36'), filamentA: 0.40,
-    ink: hex('#282521'),
-    star: 0, sunA: 1,
-    halo: hex('#ecd3a2'),
-    stone: hex('#382f21'),
-    grass: hex('#505239'),
-  }],
-  [60, { // midday: brightest, flattest, most exposed
-    skyTop: hex('#a9b4bd'), skyMid: hex('#d2c8b0'), skyHor: hex('#e8dabf'),
-    groundFar: hex('#c6b795'), groundNear: hex('#a08d6b'),
-    line: hex('#6a5f46'), lineA: 0.33,
-    filament: hex('#85682f'), filamentA: 0.35,
-    ink: hex('#282521'),
-    star: 0, sunA: 1,
-    halo: hex('#f0daae'),
-    stone: hex('#3d3425'),
-    grass: hex('#54563d'),
+  [60, {
+    field: hex('#221e16'), field2: hex('#2c271c'),
+    line: hex('#6a5f46'), lineA: 0.15,
+    filament: hex('#8a6c36'), filamentA: 0.44,
+    ink: hex('#e4d6b4'), glow: hex('#c89550'),
   }],
 ];
 
-const NUMERIC = ['lineA', 'filamentA', 'star', 'sunA'];
+const NUMERIC = ['lineA', 'filamentA'];
 
 export function palette(altitude, azimuth) {
   const alt = clamp(altitude, STOPS[0][0], STOPS[STOPS.length - 1][0]);
@@ -190,13 +132,13 @@ export function palette(altitude, azimuth) {
     out[k] = NUMERIC.includes(k) ? lerp(s0[k], s1[k], t) : mixc(s0[k], s1[k], t);
   }
 
-  // evening leans apricot; morning stays cooler gold
+  // evening leans rust / apricot in the metal
   const pm = azimuth > 180;
   if (pm && altitude < 14 && altitude > -8) {
-    const w = 0.30 * (1 - Math.abs(altitude - 2) / 11);
+    const w = 0.28 * (1 - Math.abs(altitude - 2) / 11);
     if (w > 0) {
-      out.skyHor = mixc(out.skyHor, C.apricot, w);
-      out.halo = mixc(out.halo, C.apricot, w * 1.2);
+      out.filament = mixc(out.filament, C.apricot, w);
+      out.glow = mixc(out.glow, C.rust, w * 0.7);
     }
   }
 
