@@ -8,7 +8,7 @@
 - **Reveal choice** — prototype live; judge the four candidates by feel (below).
 - **Fragment** — working line is `technology · time · tierra`. Swap if Joel wants two words only (`technology × tierra`) or a different third T (threshold, thread, tend).
 - **DNS at Spaceship** — add the GitHub Pages A/AAAA records below. Do not touch MX (`smtp.google.com`) or the Google site-verification TXT. After DNS lands, GitHub issues a Let's Encrypt cert and we flip `https_enforced`. Until then Pages is HTTP-only on the custom domain.
-- **Analytics** — pick GoatCounter (stays on GitHub Pages) or Cloudflare Web Analytics (if we ever move host / add a CF account). No Google. No cookie banner. Do not build a custom counter.
+- **Analytics** — **counter.dev** when Joel makes an account (visits/day, referrals, no cookies, no IP fingerprinting, pay-when-ready). GoatCounter is the backup if we ever want paths or self-host. No Google. No banner.
 
 ## Decided
 
@@ -40,7 +40,7 @@ Leave MX and existing TXT alone.
 
 - GitHub Pages **is HTTPS** for `chingon.io` after the Spaceship A records exist and GitHub mints the cert (minutes to a few hours). Enforce HTTPS only after that — enforcing now fails because the cert doesn't exist yet. `www` CNAME to `joelrojo.github.io`.
 - 3D later does not require a new host. Three.js / WebGL / GSAP / R3F ship as static JS + models. GitHub Pages stays free and enough until a single asset wants a real CDN (big `.glb`, HDR, textures). Then Cloudflare Pages, still free.
-- Visits: don't build a tracker. A count still has to live somewhere, and a homemade one is worse than GoatCounter. **GoatCounter** (free personal, no cookies, no banner, visits/day) or **Cloudflare Web Analytics** (same privacy posture, bundled if we ever use CF). Not GA, not Mixpanel, no consent modal.
+- Visits: **counter.dev** (2026-09-06). Same privacy class as GoatCounter, smaller, closer to "how many people showed up today." No cookies, no logging, no IP fingerprinting. Unique visitors/day + referrers. Pay when ready. GoatCounter if we later need per-path or self-host. Not GA. No banner. Wire the beacon after Joel creates the site.
 
 ## Later: 3D scroll / soil vision (Joel, 2026-09-06)
 
@@ -59,7 +59,9 @@ What to extract if we ever build a soil / Valle / vision deck:
 
 What not to import: agency CTAs, "learn 3D web" energy, brutalist billboard type as identity, scroll on the doorway.
 
-**The doorway (`/`) stays still.** A scroll story inverts the law. The deck belongs behind it (`/sol`, `/garden`, or its own domain — name it to check). V1 does not become R3F because a reel used it.
+**The doorway (`/`) stays still.** Scroll-story and the soil/vision deck live on the other domain, other thread. Do not import them here. The only story on chingon.io is time: Venice sun, later weather. Not scroll.
+
+V1 does not become R3F because a reel used it.
 
 ## Settle state machine (proposed, 2026-09-06)
 

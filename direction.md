@@ -141,7 +141,7 @@ None of: biography, headshot, résumé, "about," projects grid, career history, 
 
 ### The Doorway and the Garden
 
-`/` is the doorway. It stays extremely simple, possibly nearly unchanged for years, and never gradually becomes a conventional navigation page simply because more things exist. Everything deeper grows behind it: `/field-notes`, `/garden`, `/sol`, `/archive`, `/valle-del-sol`, other experiments. Build none of it now unless technically useful as hidden scaffolding.
+`/` is the doorway. It stays extremely simple, possibly nearly unchanged for years, and never gradually becomes a conventional navigation page simply because more things exist. It is not a scroll-through story. Scroll narrative and the vision deck belong elsewhere. Everything deeper on this domain can grow behind the doorway later: `/field-notes`, `/garden`, `/archive`, other experiments. Build none of it now unless technically useful as hidden scaffolding.
 
 ### Field Notes (likely first expansion)
 
