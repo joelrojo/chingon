@@ -96,7 +96,7 @@ function loop(now) {
   settle.update(dt);
   const pal = palette(solar.altitude, solar.azimuth);
   field.render(dt, t, pal, settle.R, settle.E,
-    (ctx) => reveal.draw(ctx, pal, settle.R, settle.E, t, dt));
+    (ctx) => reveal.draw(ctx, pal, settle.R, settle.E, t, dt, settle));
   amb.update(dt, settle.E, settle.R);
 
   requestAnimationFrame(loop);

@@ -7,6 +7,7 @@
 - **Type studies** — system serif for now (Iowan Old Style / Palatino / Georgia); the one-word type study is still open.
 - **Fragment** — `technology · time · tierra` is shelved. The doorway reveal is only `chingón`. Revisit the fragment behind the door later.
 - **HTTPS** — live (2026-09-07). GitHub minted `chingon.io` + `www.chingon.io` after a domain remove/re-add. `https_enforced` is on. Auto-renews. MX / Google TXT left alone.
+- **www** — GitHub already 301s `www.chingon.io` → `https://chingon.io/` (apex). Keep the www CNAME; no extra redirect.
 - **Analytics** — **counter.dev** is wired on `/` (`site/index.html`, Pacific UTC−7). Visits/day + referrers; no cookies, no IP fingerprinting, no banner. GoatCounter remains the backup if we ever want paths or self-host.
 
 ## Decided
@@ -17,6 +18,7 @@
 - **Doorway (2026-09-06, night)** — topological mycelium-motherboard, not a sunset landscape. Horizon / 3D place reserved for Valle del Sol.
 - **Hex cells (2026-09-06, late)** — a miss. Joel not a fan; don't double down on honeycomb. Order without tiling.
 - **Reveal (2026-09-06, night)** — current in the board writes `chingón` from the rim; wisps keep moving through the letters. Four-candidate prototype closed.
+- **Dissolve (2026-09-07)** — shelved. Pointer displaces the field; it does not reset the word. Revisit later.
 - **Sound (2026-09-06, night)** — opt-out atmospheric pad (Odyssey / Dune / Matrix / mycelium). No dings. No handpan.
 
 ### Spaceship DNS (keep Google Workspace)

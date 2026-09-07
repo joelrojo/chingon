@@ -14,6 +14,7 @@ export class Reveal {
     this.adj = [];
     this.wisps = [];
     this.positions = [];
+    this.tmp = { dx: 0, dy: 0, mag: 0 };
     this.w = 0; this.h = 0;
   }
 
@@ -73,20 +74,17 @@ export class Reveal {
       if (pts.length >= 440) break;
     }
 
-    const margin = Math.min(w, h) * 0.045;
-    this.sparks = pts.map((p) => {
-      const dl = p.tx, dr = w - p.tx, dt = p.ty, db = h - p.ty;
-      const nearest = Math.min(dl, dr, dt, db);
-      let side = 'b';
-      if (nearest === dl) side = 'l';
-      else if (nearest === dr) side = 'r';
-      else if (nearest === dt) side = 't';
+    // rest on a full ellipse at the frame — a circle closing on the word
+    this.sparks = pts.map((p, i) => {
+      const ang = (i / pts.length) * TAU + (this.rand() - 0.5) * 0.12;
+      const pad = 10 + this.rand() * 22;
+      const rx = w * 0.5 - pad, ry = h * 0.5 - pad;
       return {
-        tx: p.tx, ty: p.ty, side,
-        hx: side === 'l' ? margin : side === 'r' ? w - margin : p.tx,
-        hy: side === 't' ? margin : side === 'b' ? h - margin : p.ty,
+        tx: p.tx, ty: p.ty,
+        hx: cx + Math.cos(ang) * rx,
+        hy: cy + Math.sin(ang) * ry,
         from: null, pad: null,
-        st: this.rand() * 0.1,
+        st: this.rand() * 0.06,
         ph: this.rand() * TAU,
       };
     });
@@ -126,25 +124,13 @@ export class Reveal {
 
   // snap each spark's origin onto a rim via — current leaves the plate
   bindBoard(nodes) {
-    const { w, h } = this;
-    const band = Math.min(w, h) * 0.2;
-    const sides = { l: [], r: [], t: [], b: [] };
-    for (const n of nodes) {
-      if (n.bx < band) sides.l.push(n);
-      if (n.bx > w - band) sides.r.push(n);
-      if (n.by < band) sides.t.push(n);
-      if (n.by > h - band) sides.b.push(n);
-    }
-
+    if (!nodes.length) return;
     for (const sp of this.sparks) {
-      const pool = sides[sp.side];
-      if (!pool.length) continue;
-      const aimX = sp.side === 'l' ? band * 0.35 : sp.side === 'r' ? w - band * 0.35 : sp.tx;
-      const aimY = sp.side === 't' ? band * 0.35 : sp.side === 'b' ? h - band * 0.35 : sp.ty;
-      let best = pool[0], bestD = Infinity;
-      for (const n of pool) {
-        const d = (n.bx - aimX) ** 2 + (n.by - aimY) ** 2;
-        if (d < bestD) { bestD = d; best = n; }
+      let best = nodes[0], bestD = Infinity;
+      for (const n of nodes) {
+        const d = (n.bx - sp.hx) ** 2 + (n.by - sp.hy) ** 2;
+        const wgt = n.kind === 'rim' ? 0.55 : 1;
+        if (d * wgt < bestD) { bestD = d * wgt; best = n; }
       }
       sp.from = best;
       sp.hx = best.bx;
@@ -152,31 +138,36 @@ export class Reveal {
     }
   }
 
-  draw(ctx, pal, R, E, t, dt = 0.016) {
-    if (R < 0.02 && E < 0.02) return;
+  draw(ctx, pal, R, E, t, dt = 0.016, settle = null) {
+    if (R < 0.02) return;
     const col = mixc(pal.ink, pal.glow, pal.night * 0.25);
     const positions = this.positions;
     positions.length = 0;
+    const hasImp = settle && settle.impulses.length > 0;
 
     for (const sp of this.sparks) {
       const ox = sp.from ? sp.from.x : sp.hx;
       const oy = sp.from ? sp.from.y : sp.hy;
-      const ki = smoothstep(sp.st * 0.35, 0.26 + sp.st * 0.1, R);
-      const e = ki * ki * (3 - 2 * ki);
-      const hold = e * (1 - clamp(E * 1.7, 0, 0.88));
+      const ki = smoothstep(sp.st, 0.86 + sp.st * 0.08, R);
+      const hold = ki * ki * (3 - 2 * ki);
       const mid = Math.sin(hold * Math.PI);
       const jit = hold * hold * 0.85;
-      const x = lerp(ox, sp.tx, hold)
+      let x = lerp(ox, sp.tx, hold)
         + Math.sin(t * 0.55 + sp.ph) * mid * 14
         + Math.sin(t * 1.35 + sp.ph) * jit;
-      const y = lerp(oy, sp.ty, hold)
+      let y = lerp(oy, sp.ty, hold)
         + Math.cos(t * 0.42 + sp.ph) * mid * 10
         + Math.cos(t * 1.1 + sp.ph * 1.3) * jit * 0.7;
+      if (hasImp) {
+        settle.field(x, y, this.tmp);
+        x += this.tmp.dx * 0.38;
+        y += this.tmp.dy * 0.38;
+      }
       positions.push([x, y, hold]);
     }
 
     // solder: short traces from nearby vias into the letter
-    const solder = smoothstep(0.4, 0.86, R) * (1 - clamp(E * 1.3, 0, 0.75));
+    const solder = smoothstep(0.4, 0.86, R);
     if (solder > 0.04) {
       ctx.beginPath();
       for (let i = 0; i < this.sparks.length; i++) {
@@ -191,7 +182,7 @@ export class Reveal {
       ctx.stroke();
     }
 
-    const lineK = smoothstep(0.38, 0.84, R) * (1 - clamp(E * 1.4, 0, 0.8));
+    const lineK = smoothstep(0.38, 0.84, R);
     if (lineK > 0.02) {
       ctx.beginPath();
       for (const [i, j] of this.edges) {
@@ -220,7 +211,7 @@ export class Reveal {
   }
 
   _wisps(ctx, pal, col, R, E, dt) {
-    const still = R > 0.55 && E < 0.22;
+    const still = R > 0.55;
     if (still && this.wisps.length < 22 && this.edges.length && Math.random() < dt * 10 * R) {
       const [i, j] = this.edges[(Math.random() * this.edges.length) | 0];
       const a = this.positions[i], b = this.positions[j];

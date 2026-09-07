@@ -1,5 +1,5 @@
-// full-screen topological board: hex / geodesic / mycelium.
-// orthographic. the current in the plate writes the word.
+// full-screen topological board: circuit × mycelium × neural net.
+// orthographic. no honeycomb. the current in the plate writes the word.
 
 import { clamp, lerp, smoothstep, mulberry32, makeNoise } from './util.js';
 
@@ -19,7 +19,6 @@ export class Field {
     this.grain = null;
     this.nodes = [];
     this.edges = [];
-    this.rings = [];
     this.age = 0;
   }
 
@@ -50,56 +49,56 @@ export class Field {
   _build(w, h) {
     const rand = mulberry32(this.seed ^ (w * 131 + h));
     const cx = w * 0.5, cy = h * 0.5;
-    const size = clamp(Math.min(w, h) * 0.08, 50, 78);
-    const SQRT3 = Math.sqrt(3);
-
-    // pointy-top honeycomb (axial). faces are hexes; vertices meet.
-    const cells = [];
-    const qMax = Math.ceil((w * 0.5 + size) / (size * SQRT3)) + 1;
-    const rMax = Math.ceil((h * 0.5 + size) / (size * 1.5)) + 1;
-    for (let q = -qMax; q <= qMax; q++) {
-      for (let r = -rMax; r <= rMax; r++) {
-        const x = cx + size * (SQRT3 * q + SQRT3 * 0.5 * r);
-        const y = cy + size * (1.5 * r);
-        if (x < -size || x > w + size || y < -size || y > h + size) continue;
-        if (rand() < 0.08) continue;
-        const hub = ((q + r * 2) % 4 + 4) % 4 === 0;
-        cells.push({ x, y, q, r, hub });
-      }
-    }
-
+    const m = Math.min(w, h);
     const nodes = [];
-    const at = new Map();
-    const bucket = size * 0.28;
-    const mergeR2 = (bucket * 0.55) ** 2;
-    const vert = (x, y) => {
-      const gx = Math.round(x / bucket);
-      const gy = Math.round(y / bucket);
-      for (let oy = -1; oy <= 1; oy++) {
-        for (let ox = -1; ox <= 1; ox++) {
-          const i = at.get(`${gx + ox},${gy + oy}`);
-          if (i == null) continue;
-          const n = nodes[i];
-          if ((n._ux - x) ** 2 + (n._uy - y) ** 2 < mergeR2) return i;
-        }
-      }
-      const warp = size * 0.09;
-      const bx = x + this.noise(x * 0.018, y * 0.018) * warp;
-      const by = y + this.noise(y * 0.018 + 9, x * 0.018) * warp;
+
+    const add = (bx, by, kind) => {
       const i = nodes.length;
-      at.set(`${gx},${gy}`, i);
       nodes.push({
-        _ux: x, _uy: y,
         bx, by, x: bx, y: by,
-        ph: rand() * TAU, sp: 0.35 + rand() * 0.65,
-        kind: 'cell', dist: 0,
+        ph: rand() * TAU, sp: 0.35 + rand() * 0.7,
+        kind, dist: 0,
       });
       return i;
     };
 
+    // vias — jittered board, irregular gaps. hubs are somas / IC pads.
+    const cols = 11, rows = 7;
+    for (let j = 0; j <= rows; j++) {
+      for (let i = 0; i <= cols; i++) {
+        if (rand() < 0.24) continue;
+        const x = (i / cols) * w + (rand() - 0.5) * (w / cols) * 0.42;
+        const y = (j / rows) * h + (rand() - 0.5) * (h / rows) * 0.42;
+        add(x, y, rand() < 0.2 ? 'hub' : 'via');
+      }
+    }
+
+    // hyphae grown off existing pads — mycelium, not a scatter
+    const base = nodes.length;
+    for (let n = 0; n < 62; n++) {
+      const p = nodes[(rand() * base) | 0];
+      const a = rand() * TAU;
+      const d = 22 + rand() * 78;
+      add(
+        clamp(p.bx + Math.cos(a) * d, 10, w - 10),
+        clamp(p.by + Math.sin(a) * d, 10, h - 10),
+        'hypha',
+      );
+    }
+
+    // rim vias — the circle current leaves from
+    const rimN = 32;
+    const rx = w * 0.5 - 16, ry = h * 0.5 - 16;
+    const rim = [];
+    for (let i = 0; i < rimN; i++) {
+      const a = (i / rimN) * TAU + (rand() - 0.5) * 0.07;
+      rim.push(add(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, 'rim'));
+    }
+
     const edges = [];
     const seen = new Set();
     const link = (i, j, extra) => {
+      if (i === j) return;
       const key = i < j ? i * 10000 + j : j * 10000 + i;
       if (seen.has(key)) return;
       seen.add(key);
@@ -110,7 +109,7 @@ export class Field {
       edges.push({
         i, j, g: 0, len,
         th: extra.th ?? rand() * 0.16,
-        bow: extra.bow ?? (rand() - 0.5) * 0.08,
+        bow: extra.bow ?? (rand() - 0.5) * 0.22,
         manhattan: extra.manhattan ?? false,
         kind: extra.kind ?? 'hypha',
         radial: Math.abs(da - db) / (len + 1),
@@ -118,73 +117,52 @@ export class Field {
       });
     };
 
-    for (const cell of cells) {
-      const ids = [];
-      for (let k = 0; k < 6; k++) {
-        const a = (60 * k - 30) * Math.PI / 180;
-        ids.push(vert(cell.x + size * Math.cos(a), cell.y + size * Math.sin(a)));
+    const nearest = (i, k, maxD, filter) => {
+      const a = nodes[i];
+      const cand = [];
+      for (let j = 0; j < nodes.length; j++) {
+        if (j === i) continue;
+        if (filter && !filter(nodes[j])) continue;
+        const d = Math.hypot(a.bx - nodes[j].bx, a.by - nodes[j].by);
+        if (d < maxD) cand.push([d, j]);
       }
-      for (let k = 0; k < 6; k++) {
-        if (rand() < 0.06) continue;
-        link(ids[k], ids[(k + 1) % 6], {
-          kind: 'hypha',
-          bow: (rand() - 0.5) * 0.1,
+      cand.sort((p, q) => p[0] - q[0]);
+      return cand.slice(0, k);
+    };
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      if (n.kind === 'rim') continue;
+      const deg = n.kind === 'hub' ? 4 : n.kind === 'via' ? 3 : 2;
+      const reach = n.kind === 'hub' ? m * 0.22 : n.kind === 'via' ? m * 0.16 : m * 0.13;
+      for (const [, j] of nearest(i, deg, reach)) {
+        const b = nodes[j];
+        const bothPad = (n.kind === 'via' || n.kind === 'hub') && (b.kind === 'via' || b.kind === 'hub');
+        const manhattan = bothPad && rand() < 0.72;
+        link(i, j, {
+          manhattan,
+          kind: manhattan ? 'trace' : n.kind === 'hub' || b.kind === 'hub' ? 'axon' : 'hypha',
+          bow: manhattan ? 0 : (rand() - 0.5) * (n.kind === 'hypha' ? 0.52 : 0.32),
         });
-      }
-      if (cell.hub) {
-        const hi = nodes.length;
-        const warp = size * 0.05;
-        const bx = cell.x + this.noise(cell.q, cell.r) * warp;
-        const by = cell.y + this.noise(cell.r, cell.q + 4) * warp;
-        nodes.push({
-          bx, by, x: bx, y: by,
-          ph: rand() * TAU, sp: 0.4 + rand() * 0.5,
-          kind: 'hub', dist: 0,
-        });
-        const spokes = ids.slice();
-        for (let i = spokes.length - 1; i > 0; i--) {
-          const j = (rand() * (i + 1)) | 0;
-          [spokes[i], spokes[j]] = [spokes[j], spokes[i]];
-        }
-        for (const id of spokes.slice(0, 2 + ((rand() * 2) | 0))) {
-          link(hi, id, { kind: 'axon', bow: (rand() - 0.5) * 0.28, th: 0.04 + rand() * 0.1 });
-        }
       }
     }
 
-    // a few hub-to-hub traces — motherboard buses between somas
-    const hubs = nodes.map((n, i) => n.kind === 'hub' ? i : -1).filter((i) => i >= 0);
-    for (const i of hubs) {
-      const n = nodes[i];
-      const nd = Math.hypot(n.bx - cx, n.by - cy);
-      let best = -1, bestD = Infinity;
-      for (const j of hubs) {
-        if (j === i) continue;
-        const o = nodes[j];
-        const od = Math.hypot(o.bx - cx, o.by - cy);
-        if (od >= nd - 4) continue;
-        const d = Math.hypot(n.bx - o.bx, n.by - o.by);
-        if (d < size * 1.6 || d > size * 5.2) continue;
-        if (d < bestD) { bestD = d; best = j; }
-      }
-      if (best >= 0 && rand() < 0.7) {
-        link(i, best, {
-          kind: 'trace',
-          manhattan: rand() < 0.22,
-          bow: (rand() - 0.5) * 0.28,
-          th: 0.05 + rand() * 0.1,
+    for (let i = 0; i < rim.length; i++) {
+      link(rim[i], rim[(i + 1) % rim.length], {
+        kind: 'hypha', bow: (rand() - 0.5) * 0.12, th: 0.02 + rand() * 0.08,
+      });
+      const inward = nearest(rim[i], 1, m * 0.28, (n) => n.kind !== 'rim');
+      if (inward.length) {
+        link(rim[i], inward[0][1], {
+          kind: 'axon', bow: (rand() - 0.5) * 0.3, th: 0.04 + rand() * 0.1,
         });
       }
     }
 
     this.nodes = nodes;
     this.edges = edges;
-    this.cx = cx; this.cy = cy; this.s = size;
-    this.rings = [0.36, 0.58, 0.82].map((k, i) => ({
-      rx: (w * 0.5) * k,
-      ry: (h * 0.5) * k,
-      rot: i % 2 ? TAU / 12 : -TAU / 4,
-    }));
+    this.cx = cx; this.cy = cy;
+    this.s = m * 0.08;
     this.pulses.length = 0;
   }
 
@@ -240,31 +218,6 @@ export class Field {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // geodesic rings — order under the net
-    ctx.lineWidth = 0.7;
-    for (let i = 0; i < this.rings.length; i++) {
-      const ring = this.rings[i];
-      ctx.beginPath();
-      for (let k = 0; k <= 6; k++) {
-        const a = ring.rot + (k % 6) * TAU / 6;
-        let x = this.cx + Math.cos(a) * ring.rx;
-        let y = this.cy + Math.sin(a) * ring.ry;
-        x += this.noise(a + t * 0.015, i * 3) * 3.5;
-        y += this.noise(i * 3, a + t * 0.015) * 3.5;
-        if (hasImp) {
-          S.field(x, y, this.tmp);
-          x += this.tmp.dx * 0.22;
-          y += this.tmp.dy * 0.22;
-        }
-        if (k === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = rgba(pal.filament, pal.filamentA * (0.42 + 0.22 * C) * appear);
-      ctx.lineWidth = i === 1 ? 1.25 : 0.95;
-      ctx.stroke();
-    }
-
     for (const n of this.nodes) {
       n.x = n.bx + this.noise(n.bx * 0.007 + t * 0.016 * n.sp, n.ph) * 2.4;
       n.y = n.by + this.noise(n.ph, n.by * 0.007 + t * 0.013 * n.sp) * 2.4;
@@ -278,9 +231,8 @@ export class Field {
 
     for (const e of this.edges) {
       const a = this.nodes[e.i], b = this.nodes[e.j];
-      const grow = (e.kind === 'axon' ? R * C : C) * appear;
+      const grow = (e.kind === 'axon' ? Math.max(appear, R) : appear);
       let target = smoothstep(e.th, e.th + 0.28, grow);
-      if (a.dist > 0.28 || b.dist > 0.28) target = 0;
       e.g += (target - e.g) * Math.min(1, dt * (target > e.g ? 1.15 : 3.2));
       if (e.g < 0.03) continue;
 
@@ -312,7 +264,7 @@ export class Field {
 
     for (const n of this.nodes) {
       const hub = n.kind === 'hub';
-      const a = pal.filamentA * (hub ? 0.78 : 0.36) * (0.45 + 0.55 * C) * appear;
+      const a = pal.filamentA * (hub ? 0.78 : 0.36) * appear;
       if (hub) {
         ctx.strokeStyle = rgba(pal.filament, a);
         ctx.lineWidth = 0.85;
@@ -326,7 +278,7 @@ export class Field {
     }
 
     const hunger = 2.8 + R * 5.5;
-    if (C > 0.3 && this.pulses.length < 18 && Math.random() < dt * hunger * C) {
+    if (appear > 0.35 && this.pulses.length < 18 && Math.random() < dt * hunger) {
       const live = this.edges.filter((e) => e.g > 0.82);
       const inward = live.filter((e) => e.radial > 0.32);
       const pool = (R > 0.12 && inward.length) ? inward : live;

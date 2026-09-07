@@ -58,14 +58,11 @@ Most digital products reward increasing input: click, scroll, tap, swipe, consum
 
 ### Presence reveals information
 
-The visitor arrives in a living environment. Moving the mouse, trackpad, device, or finger subtly disturbs it: traces scatter, filaments withdraw, signals lose their path — the visitor is exerting a physical force. Movement should be beautiful, but it is not the reward.
+The visitor arrives in a living environment. Current runs inward from the whole rim and writes `chingón` at the center — it starts at once, slow enough to watch. After it forms, little wisps keep moving through the letters.
 
-When the visitor becomes still, current in the board runs inward. Charge leaves the rim vias, follows the net, and writes the word `chingón` at the center. After it forms, little wisps keep moving through the letters themselves. Natural, almost accidental — not a timed unlock. Movement dissolves the word again.
+The pointer displaces the field: nodes and traces move aside, then settle back. It does not rewind the word. Dissolve-on-move is canon later; for now, simpler.
 
-The visitor asks: *what can I make this do?*
-The system answers: *what happens when you stop doing?*
-
-Never a gimmicky "wait 5 seconds to unlock content" mechanism. The word should start assembling almost immediately when the visitor is still; movement dissolves it again. The board itself can take longer to fade in.
+Never a gimmicky "wait 5 seconds to unlock content" mechanism. The board itself can take longer to fade in.
 
 ### Motion is simulation, not animation
 
@@ -183,8 +180,8 @@ Do not build the future site yet. V1 succeeds if:
 
 1. Someone lands there and immediately senses intention.
 2. It feels like a living system rather than a page.
-3. Mouse/touch movement disturbs the network; stillness lets it organize.
-4. Stillness draws matter in from the borders and assembles `chingón` — quickly, not after a long wait.
+3. The pointer displaces the network; it does not rewind the word.
+4. Stillness draws matter in from the whole rim and assembles `chingón` — it starts at once, and the gather is slow enough to watch.
 5. The board’s temperature follows Venice solar time.
 6. Nature and computation feel like one underlying system.
 7. The experience works beautifully with almost no words.

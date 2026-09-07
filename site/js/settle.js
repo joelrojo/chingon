@@ -36,24 +36,15 @@ export class Settle {
   update(dt) {
     this.time += dt;
 
-    const tau = this.E > 0.3 ? 0.38 : 0.55;
+    const tau = this.E > 0.25 ? 0.7 : 1.1;
     this.E *= Math.exp(-dt / tau);
     if (this.E < 0.0004) this.E = 0;
 
-    for (const im of this.impulses) im.power *= Math.exp(-dt / 0.55);
+    for (const im of this.impulses) im.power *= Math.exp(-dt / 0.65);
     while (this.impulses.length && this.impulses[0].power < 0.02) this.impulses.shift();
 
-    if (this.reduced) {
-      this.R = clamp(this.R + dt / 0.6, 0, 1);
-      return;
-    }
-
-    if (this.E < 0.28) {
-      const still = 1 - this.E / 0.28;
-      this.R = clamp(this.R + (dt / 0.5) * still, 0, 1);
-    } else {
-      this.R = clamp(this.R - dt * this.E * 3.6, 0, 1);
-    }
+    // gather is one-way. mouse displaces the field; it does not rewind the word.
+    this.R = clamp(this.R + dt / 3.2, 0, 1);
   }
 
   field(x, y, out) {
