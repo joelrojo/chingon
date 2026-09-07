@@ -17,4 +17,4 @@ Every session: read `direction.md` in full before touching anything. It is one f
 ## Git
 
 - Commit directly to `main`, terse messages. The founding brief is commit 1 of `direction.md` — git history is the archive; don't add archive folders.
-- No remote yet. Once one exists: pull before working, push after committing.
+- Remote: `joelrojo/chingon`. Pull before working, push after committing.

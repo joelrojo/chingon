@@ -127,9 +127,9 @@ Extremely restrained. The working tension: **humanist / literary serif × precis
 
 No faux-western fonts, no fantasy typography, no aggressive futurism. Timeless. The accent in **CHINGÓN** is enough cultural specificity on its own. No logo mark — the word carries the identity. Don't invent a symbol unless the experience later organically demands one.
 
-### Sound *(decided 2026-09-06: in for V1, subtle and opt-in)*
+### Sound *(opt-in; 2026-09-06, revised same day)*
 
-A quiet ambience — wind, a low tone — that obeys the same physics as everything else: disturbance roughens it, stillness resolves it. Opt-in; since the site has no conventional UI, the mechanism must be nearly invisible (design in build — `seeds.md`). Silence remains a fully valid state.
+Sparse, ethereal, handpan-adjacent metal tones — not wind, not noise, not a soundtrack. Disturbance quiets them; stillness lets a few notes speak. Opt-in via a near-invisible glyph. Silence remains a fully valid state.
 
 ## Content
 
@@ -201,7 +201,7 @@ Favor the simplest technical system capable of producing the desired interaction
 
 Fast, responsive, resilient. Elegant on desktop, intentionally adapted for touch/mobile, respectful of reduced-motion preferences, graceful fallback if advanced rendering is unavailable. Sophisticated because the **idea is sophisticated**, not because the bundle is large.
 
-Open decisions (stack, host, repo remote): `seeds.md`.
+Stack: vanilla JS + Canvas 2D, no build step. Host: GitHub Pages. Remote: `joelrojo/chingon`. Further open items: `seeds.md`.
 
 ## Migration
 

@@ -1,13 +1,15 @@
-// ambience obeys the same physics as everything else:
-// disturbance roughens it, stillness resolves it toward a clear low tone.
+// sparse, ethereal, handpan-adjacent.
+// not wind, not a drone, not a soundtrack. a few metal tones in a quiet room.
 // opt-in. silence is a fully valid state.
 
 export class Ambience {
   constructor() {
     this.ctx = null;
     this.on = false;
-    this.gust = 0;
     this._suspendTimer = null;
+    this._nextAt = 0;
+    this._voice = 0;
+    this._lastR = 0;
   }
 
   _build() {
@@ -17,62 +19,85 @@ export class Ambience {
 
     this.master = ctx.createGain();
     this.master.gain.value = 0;
+
+    // a little air around the metal — not noise-as-ambience
+    this.air = ctx.createConvolver();
+    this.air.buffer = this._ir(ctx);
+    this.airGain = ctx.createGain();
+    this.airGain.gain.value = 0.22;
+    this.dry = ctx.createGain();
+    this.dry.gain.value = 0.85;
+    this.dry.connect(this.master);
+    this.air.connect(this.airGain);
+    this.airGain.connect(this.master);
     this.master.connect(ctx.destination);
 
-    // wind: looped brownish noise through a lowpass
-    const len = ctx.sampleRate * 4;
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < len; i++) {
-      const white = Math.random() * 2 - 1;
-      last = 0.97 * last + 0.03 * white;
-      d[i] = last * 3.0;
-    }
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
-    this.windLP = ctx.createBiquadFilter();
-    this.windLP.type = 'lowpass';
-    this.windLP.frequency.value = 420;
-    this.windLP.Q.value = 0.4;
-    this.windGain = ctx.createGain();
-    this.windGain.gain.value = 0.05;
-    src.connect(this.windLP).connect(this.windGain).connect(this.master);
-    src.start();
+    // barely-there bed: ding + fifth, only when still
+    this.bed = ctx.createGain();
+    this.bed.gain.value = 0;
+    this.bed.connect(this.dry);
+    this.bed.connect(this.air);
 
-    // drone: a low root and a soft fifth, clearing with stillness
-    this.droneGain = ctx.createGain();
-    this.droneGain.gain.value = 0;
-    this.droneLP = ctx.createBiquadFilter();
-    this.droneLP.type = 'lowpass';
-    this.droneLP.frequency.value = 170;
-    this.droneGain.connect(this.droneLP).connect(this.master);
-
-    const mk = (freq, type, gain) => {
+    const bed = (freq, type, gain) => {
       const o = ctx.createOscillator();
       o.type = type;
       o.frequency.value = freq;
       const g = ctx.createGain();
       g.gain.value = gain;
-      o.connect(g).connect(this.droneGain);
+      o.connect(g).connect(this.bed);
       o.start();
       return o;
     };
-    mk(55, 'sine', 0.55);
-    mk(82.41, 'triangle', 0.16);
-    mk(110.0, 'sine', 0.10);
-
-    // revelation partial — barely there, only at deep stillness
-    this.shimmer = ctx.createOscillator();
-    this.shimmer.type = 'sine';
-    this.shimmer.frequency.value = 164.81;
-    this.shGain = ctx.createGain();
-    this.shGain.gain.value = 0;
-    this.shimmer.connect(this.shGain).connect(this.master);
-    this.shimmer.start();
+    bed(146.83, 'sine', 0.22); // D3 ding
+    bed(220.00, 'sine', 0.10); // A3
+    bed(293.66, 'sine', 0.06); // D4
 
     return true;
+  }
+
+  // short dark impulse — suggestion of a room, not a hall
+  _ir(ctx) {
+    const sr = ctx.sampleRate;
+    const n = Math.floor(sr * 1.6);
+    const buf = ctx.createBuffer(2, n, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < n; i++) {
+        const t = i / n;
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.8) * 0.18;
+      }
+    }
+    return buf;
+  }
+
+  // one struck tone field. inharmonic partials keep it closer to steel than a synth pad.
+  _strike(freq, vel = 0.18) {
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(0, t);
+    out.gain.linearRampToValueAtTime(vel, t + 0.012);
+    out.gain.exponentialRampToValueAtTime(0.0008, t + 3.8);
+    out.connect(this.dry);
+    out.connect(this.air);
+
+    const partials = [
+      [1, 'sine', 1],
+      [1.004, 'sine', 0.45],   // beat, like two steel faces
+      [2.76, 'sine', 0.16],    // handpan-ish inharmonic
+      [5.43, 'sine', 0.05],
+    ];
+    for (const [ratio, type, g] of partials) {
+      const o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.setValueAtTime(freq * ratio, t);
+      o.frequency.exponentialRampToValueAtTime(freq * ratio * 0.997, t + 2.4);
+      const pg = ctx.createGain();
+      pg.gain.value = g;
+      o.connect(pg).connect(out);
+      o.start(t);
+      o.stop(t + 4.2);
+    }
   }
 
   toggle() {
@@ -83,11 +108,12 @@ export class Ambience {
     if (this.on) {
       if (this.ctx.state === 'suspended') this.ctx.resume();
       this.master.gain.cancelScheduledValues(now);
-      this.master.gain.setTargetAtTime(0.8, now, 0.6);
+      this.master.gain.setTargetAtTime(0.55, now, 0.8);
+      this._nextAt = performance.now() / 1000 + 2.4;
     } else {
       this.master.gain.cancelScheduledValues(now);
-      this.master.gain.setTargetAtTime(0, now, 0.4);
-      this._suspendTimer = setTimeout(() => this.ctx && this.ctx.suspend(), 2000);
+      this.master.gain.setTargetAtTime(0, now, 0.35);
+      this._suspendTimer = setTimeout(() => this.ctx && this.ctx.suspend(), 1800);
     }
     return this.on;
   }
@@ -100,12 +126,26 @@ export class Ambience {
 
   update(dt, E, R) {
     if (!this.ctx || !this.on) return;
-    this.gust = Math.max(0, Math.min(1, this.gust + (Math.random() - 0.505) * dt * 0.9));
     const t = this.ctx.currentTime;
-    this.windLP.frequency.setTargetAtTime(380 + E * 1500 + this.gust * 160, t, 0.35);
-    this.windGain.gain.setTargetAtTime(0.045 + E * 0.11 + this.gust * 0.02, t, 0.5);
-    this.droneGain.gain.setTargetAtTime((1 - E) * (0.05 + R * 0.10), t, 1.2);
-    this.droneLP.frequency.setTargetAtTime(150 + R * 430, t, 1.5);
-    this.shGain.gain.setTargetAtTime(R > 0.92 ? 0.016 : 0, t, 2.2);
+    const still = Math.max(0, 1 - E * 2.2);
+    this.bed.gain.setTargetAtTime(still * (0.012 + R * 0.028), t, 1.1);
+
+    const now = performance.now() / 1000;
+    // only speak when the garden is settling; never chatter
+    if (E < 0.12 && R > 0.18 && now >= this._nextAt) {
+      // D Kurd tone fields, sparse. tierra last in the ear as well as on the page.
+      const scale = [146.83, 220.00, 293.66, 349.23, 440.00, 523.25];
+      const i = Math.min(scale.length - 1, Math.floor(R * 4) + (this._voice % 2));
+      const vel = 0.07 + R * 0.09;
+      this._strike(scale[i], vel);
+      this._voice = (this._voice + 1) % 5;
+      this._nextAt = now + 5.5 + Math.random() * 5.5;
+    }
+    // a first quiet ding as stillness first arrives
+    if (this._lastR < 0.55 && R >= 0.55 && E < 0.08) {
+      this._strike(293.66, 0.11);
+      this._nextAt = now + 4;
+    }
+    this._lastR = R;
   }
 }

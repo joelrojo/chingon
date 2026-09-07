@@ -19,7 +19,7 @@ export class Reveal {
     this.mode = 'word';
     this.sparks = [];
     this.edges = [];
-    this.fragment = 'tierra · tecnología · equilibrio';
+    this.fragment = 'technology · time · tierra';
     this.w = 0; this.h = 0;
   }
 

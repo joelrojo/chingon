@@ -4,15 +4,46 @@
 
 ## Open items
 
-- **Host** — Render (current home of joelrojo.com) vs a static host. Decide at deploy time; the site is fully static.
-- **Repo remote** — private `joelrojo/chingon` on GitHub when Joel says go. Until then, local only.
-- **DNS** — ready at Spaceship; point after the host decision. Google Workspace mail stays untouched.
 - **Type studies** — prototype uses a system serif stack (Iowan Old Style / Palatino / Georgia); the real one-word type study is still open.
 - **Reveal choice** — prototype live; judge the four candidates by feel (below).
+- **Fragment** — working line is `technology · time · tierra`. Swap if Joel wants two words only (`technology × tierra`) or a different third T (threshold, thread, tend).
+- **DNS at Spaceship** — add the GitHub Pages A/AAAA records below. Do not touch MX (`smtp.google.com`) or the Google site-verification TXT.
 
 ## Decided
 
 - **Stack (2026-09-06)** — vanilla JS + Canvas 2D, ES modules, zero dependencies, no build step. Client-side NOAA-style solar math, verified against published LA sun times (solar noon 62.2°, sunset 19:08). Revisit WebGL only if a specific refraction/texture idea demands it. V1 prototype lives in `site/` — dev notes in `site/README.md` (`?h=` hour override, keys 1–4 / `?r=` reveal modes; garden reseeds daily from the Venice date).
+- **Host (2026-09-06)** — GitHub Pages from `/site` on `joelrojo/chingon`. Simplest static host; free SSL; no extra account. Move to Cloudflare Pages later if we want a faster edge or the repo private.
+- **Remote (2026-09-06)** — `joelrojo/chingon` on GitHub, public (Pages on a free plan needs a public repo; the site is public anyway).
+- **Fragment (2026-09-06, working)** — `technology · time · tierra`. Technology first (the encompassing system). Time as the third T — already the site's clock, never explained. Tierra last: soil, land, mycelium. English + Spanish is the right mix; equilibrio dropped.
+- **Sound (2026-09-06, revised)** — brown-noise wind rejected. Sparse handpan-adjacent strikes + a barely-there D/A bed. Speaks only while settling.
+
+### Spaceship DNS (keep Google Workspace)
+
+Apex `chingon.io` → GitHub Pages:
+
+```
+A      @     185.199.108.153
+A      @     185.199.109.153
+A      @     185.199.110.153
+A      @     185.199.111.153
+AAAA   @     2606:50c0:8000::153
+AAAA   @     2606:50c0:8001::153
+AAAA   @     2606:50c0:8002::153
+AAAA   @     2606:50c0:8003::153
+CNAME  www   joelrojo.github.io
+```
+
+Leave MX and existing TXT alone.
+
+## Later: 3D scroll / soil vision (Joel, 2026-09-06)
+
+References: [srii_tech_ reel](https://www.instagram.com/reel/Da2klK9MwRO/), [second reel](https://www.instagram.com/reel/Dci-Pn-vvnH/). Compilation of cinematic 3D product/portfolio sites. Stack they name: Three.js, WebGL, GSAP, React Three Fiber.
+
+Extract, don't copy: spatial depth, material light, scroll as storytelling. Do not import the soda-can / dark-luxury / "stop building basic websites" register — that's the opposite of the doorway.
+
+**The doorway (`/`) stays still.** Scroll-through narrative inverts "movement disturbs / stillness reveals." A 3D soil deck — a whole vision told through terrain — belongs behind the doorway (`/sol`, `/garden`, or its own domain). Check that domain when Joel names it.
+
+V1 does not become React or R3F because a reel used them. Complexity only when it creates experiential value the canvas cannot.
 
 ## Settle state machine (proposed, 2026-09-06)
 
