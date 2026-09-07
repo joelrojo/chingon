@@ -7,12 +7,13 @@
 - **Type studies** — prototype uses a system serif stack (Iowan Old Style / Palatino / Georgia); the real one-word type study is still open.
 - **Reveal choice** — prototype live; judge the four candidates by feel (below).
 - **Fragment** — working line is `technology · time · tierra`. Swap if Joel wants two words only (`technology × tierra`) or a different third T (threshold, thread, tend).
-- **DNS at Spaceship** — add the GitHub Pages A/AAAA records below. Do not touch MX (`smtp.google.com`) or the Google site-verification TXT.
+- **DNS at Spaceship** — add the GitHub Pages A/AAAA records below. Do not touch MX (`smtp.google.com`) or the Google site-verification TXT. After DNS lands, GitHub issues a Let's Encrypt cert and we flip `https_enforced`. Until then Pages is HTTP-only on the custom domain.
+- **Analytics** — pick GoatCounter (stays on GitHub Pages) or Cloudflare Web Analytics (if we ever move host / add a CF account). No Google. No cookie banner. Do not build a custom counter.
 
 ## Decided
 
 - **Stack (2026-09-06)** — vanilla JS + Canvas 2D, ES modules, zero dependencies, no build step. Client-side NOAA-style solar math, verified against published LA sun times (solar noon 62.2°, sunset 19:08). Revisit WebGL only if a specific refraction/texture idea demands it. V1 prototype lives in `site/` — dev notes in `site/README.md` (`?h=` hour override, keys 1–4 / `?r=` reveal modes; garden reseeds daily from the Venice date).
-- **Host (2026-09-06)** — GitHub Pages from `/site` on `joelrojo/chingon`. Simplest static host; free SSL; no extra account. Move to Cloudflare Pages later if we want a faster edge or the repo private.
+- **Host (2026-09-06)** — GitHub Pages from `/site` on `joelrojo/chingon`. Free. HTTPS on custom domains is real (Let's Encrypt) once DNS points here — not before. Three.js / WebGL / R3F later still fit: those are static files. Move to Cloudflare Pages only if GLB/HDR assets get large, or we want CF's free privacy analytics + instant custom-domain certs.
 - **Remote (2026-09-06)** — `joelrojo/chingon` on GitHub, public (Pages on a free plan needs a public repo; the site is public anyway).
 - **Fragment (2026-09-06, working)** — `technology · time · tierra`. Technology first (the encompassing system). Time as the third T — already the site's clock, never explained. Tierra last: soil, land, mycelium. English + Spanish is the right mix; equilibrio dropped.
 - **Sound (2026-09-06, revised)** — brown-noise wind rejected. Sparse handpan-adjacent strikes + a barely-there D/A bed. Speaks only while settling.
@@ -35,15 +36,30 @@ CNAME  www   joelrojo.github.io
 
 Leave MX and existing TXT alone.
 
+## HTTPS, host, analytics (2026-09-06)
+
+- GitHub Pages **is HTTPS** for `chingon.io` after the Spaceship A records exist and GitHub mints the cert (minutes to a few hours). Enforce HTTPS only after that — enforcing now fails because the cert doesn't exist yet. `www` CNAME to `joelrojo.github.io`.
+- 3D later does not require a new host. Three.js / WebGL / GSAP / R3F ship as static JS + models. GitHub Pages stays free and enough until a single asset wants a real CDN (big `.glb`, HDR, textures). Then Cloudflare Pages, still free.
+- Visits: don't build a tracker. A count still has to live somewhere, and a homemade one is worse than GoatCounter. **GoatCounter** (free personal, no cookies, no banner, visits/day) or **Cloudflare Web Analytics** (same privacy posture, bundled if we ever use CF). Not GA, not Mixpanel, no consent modal.
+
 ## Later: 3D scroll / soil vision (Joel, 2026-09-06)
 
-References: [srii_tech_ reel](https://www.instagram.com/reel/Da2klK9MwRO/), [second reel](https://www.instagram.com/reel/Dci-Pn-vvnH/). Compilation of cinematic 3D product/portfolio sites. Stack they name: Three.js, WebGL, GSAP, React Three Fiber.
+Raw refs now watched: `~/Downloads/igexport-Da2klK9MwRO.mp4`, `~/Downloads/igexport-Dci-Pn-vvnH.mp4`.
 
-Extract, don't copy: spatial depth, material light, scroll as storytelling. Do not import the soda-can / dark-luxury / "stop building basic websites" register — that's the opposite of the doorway.
+**Reel A** is a compilation. The useful one is Pioneer (seed / corn / breeding): one hero object (a seed, then an ear of corn), scroll chapters with a single line each ("less than 0.01% of seeds make it" → breeders → testing over a field-grid), camera and light doing the storytelling. Also: Getty × Gehry — an archive told by moving through a building. Ignore the "AI × Web Design" wrapper and the concert-hall flex.
 
-**The doorway (`/`) stays still.** Scroll-through narrative inverts "movement disturbs / stillness reveals." A 3D soil deck — a whole vision told through terrain — belongs behind the doorway (`/sol`, `/garden`, or its own domain). Check that domain when Joel names it.
+**Reel B** is Pear and friends: 3D figure pulling a curtain, grafting hands on a branch, dotted mushroom/cloud primitives on a blueprint grid, a pear tree as stage. Agency site. Steal the *graft* and the *mushroom-as-primitive*, not the "REQUEST PARTNERSHIP" register.
 
-V1 does not become React or R3F because a reel used them. Complexity only when it creates experiential value the canvas cannot.
+What to extract if we ever build a soil / Valle / vision deck:
+
+- **One object, many chapters.** The seed (or a clod, a mycelial body, a horizon) stays; scroll moves the camera around it. Don't swap scenes like slides.
+- **Scroll is the verb, type is the caption.** Huge line, almost no UI. Sound toggle, not a nav.
+- **Material light on something living** — translucent seed, bark, graft tape, soil crumb — not a chrome soda can.
+- **Blueprint × organism** (Pear's dotted mushroom on a grid) is closer to "technology remembering it is nature" than a photoreal farm.
+
+What not to import: agency CTAs, "learn 3D web" energy, brutalist billboard type as identity, scroll on the doorway.
+
+**The doorway (`/`) stays still.** A scroll story inverts the law. The deck belongs behind it (`/sol`, `/garden`, or its own domain — name it to check). V1 does not become R3F because a reel used it.
 
 ## Settle state machine (proposed, 2026-09-06)
 
