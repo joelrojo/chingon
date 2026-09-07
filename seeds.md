@@ -4,10 +4,15 @@
 
 ## Open items
 
-- **Stack** — vanilla JS + Canvas 2D vs WebGL (raw or Three.js). The prototype decides; start with the simplest thing that can do depth + particles + settle.
-- **Host** — Render (current home of joelrojo.com) vs a static host. Decide at build time.
+- **Host** — Render (current home of joelrojo.com) vs a static host. Decide at deploy time; the site is fully static.
 - **Repo remote** — private `joelrojo/chingon` on GitHub when Joel says go. Until then, local only.
 - **DNS** — ready at Spaceship; point after the host decision. Google Workspace mail stays untouched.
+- **Type studies** — prototype uses a system serif stack (Iowan Old Style / Palatino / Georgia); the real one-word type study is still open.
+- **Reveal choice** — prototype live; judge the four candidates by feel (below).
+
+## Decided
+
+- **Stack (2026-09-06)** — vanilla JS + Canvas 2D, ES modules, zero dependencies, no build step. Client-side NOAA-style solar math, verified against published LA sun times (solar noon 62.2°, sunset 19:08). Revisit WebGL only if a specific refraction/texture idea demands it. V1 prototype lives in `site/` — dev notes in `site/README.md` (`?h=` hour override, keys 1–4 / `?r=` reveal modes; garden reseeds daily from the Venice date).
 
 ## Settle state machine (proposed, 2026-09-06)
 

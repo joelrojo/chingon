@@ -1,0 +1,88 @@
+:root {
+  --obsidian: #1C1C1A;
+  --bone: #E8E0D2;
+  --gold: #C89550;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--obsidian);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+main { height: 100%; }
+
+canvas#field {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* sound — an object in the environment, not a control bar */
+#sound {
+  position: fixed;
+  right: 18px;
+  bottom: 16px;
+  width: 44px; height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--bone);
+  opacity: 0.22;
+  cursor: pointer;
+  transition: opacity 1.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#sound:hover, #sound:focus-visible { opacity: 0.55; outline: none; }
+#sound .core { opacity: 0; transition: opacity 1.5s ease; }
+#sound[aria-pressed="true"] .core { opacity: 1; }
+#sound[aria-pressed="true"] { animation: breathe 7s ease-in-out infinite; }
+#sound .ring { stroke-dasharray: 40 7; transition: stroke-dasharray 1.5s ease; }
+#sound[aria-pressed="true"] .ring { stroke-dasharray: 47 0; }
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sound[aria-pressed="true"] { animation: none; opacity: 0.35; }
+}
+
+/* no-JS: a still doorway */
+noscript .still {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #131519 0%, #1d242e 46%, #191a19 46.2%, #141412 100%);
+}
+noscript .still span {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: clamp(17px, 3.2vw, 30px);
+  letter-spacing: 0.42em;
+  margin-left: 0.42em;
+  color: var(--bone);
+  opacity: 0.85;
+}
