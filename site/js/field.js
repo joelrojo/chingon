@@ -40,12 +40,6 @@ export class Field {
       this.brightN.push({ x: 0.08 + rand() * 0.84, y: 0.06 + Math.pow(rand(), 1.4) * 0.6, r: 1.1 + rand() * 0.7, ph: rand() * TAU });
     }
 
-    this.stonesN = [
-      { x: 0.24 + rand() * 0.07, y: 0.28 + rand() * 0.12, r: 0.030 + rand() * 0.012 },
-      { x: 0.60 + rand() * 0.09, y: 0.55 + rand() * 0.15, r: 0.046 + rand() * 0.016 },
-      { x: 0.815 + rand() * 0.05, y: 0.20 + rand() * 0.10, r: 0.021 + rand() * 0.009 },
-    ];
-
     this.nodesN = [];
     for (let i = 0; i < 148; i++) {
       const sky = i % 4 === 3;
@@ -90,20 +84,12 @@ export class Field {
     const groundTop = this.horizon + 6;
     const groundH = h - groundTop;
 
-    this.stones = this.stonesN.map((s) => ({
-      x: s.x * w, y: groundTop + 14 + s.y * (groundH - 20), r: s.r * m,
-    }));
-
     this.nodes = this.nodesN.map((n) => ({
       bx: n.x * w,
       by: n.sky ? n.y * this.horizon * 0.95 : groundTop + 6 + n.y * (groundH - 10),
       x: 0, y: 0, sky: n.sky, ph: n.ph, sp: n.sp,
       depth: n.sky ? 0 : n.y,
     }));
-    // stones are hubs of the ground network
-    for (const s of this.stones) {
-      this.nodes.push({ bx: s.x, by: s.y, x: 0, y: 0, sky: false, ph: 0, sp: 0, depth: (s.y - groundTop) / groundH, hub: true });
-    }
 
     // static topology; growth animates connection
     this.edges = [];
@@ -305,7 +291,7 @@ export class Field {
     ctx.fillStyle = haze;
     ctx.fillRect(0, horizon - 1, w, h * 0.1 + 1);
 
-    // ---- ground plane: contours, stones, network ----
+    // ---- ground plane: contours, network ----
     ctx.save();
     ctx.translate(-px * 16, -py * 6);
 
@@ -325,18 +311,6 @@ export class Field {
       for (let x = -12; x <= w + 12; x += step) {
         let y = y0 + this.noise(x * freq, i * 3.7 + t * 0.05) * amp;
         let xx = x;
-        // raked sand flows around the stones
-        for (const st of this.stones) {
-          const inf = st.r * 2.4;
-          const dx = xx - st.x;
-          if (dx > inf || dx < -inf) continue;
-          const dy = y - st.y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < inf && d > 0.001) {
-            const over = (inf - d) / inf;
-            y += (dy / d) * over * over * inf * 0.5;
-          }
-        }
         if (hasImp) {
           S.field(xx, y, this.tmp);
           xx += this.tmp.dx * 0.35 * depthK;
@@ -348,31 +322,6 @@ export class Field {
       ctx.strokeStyle = rgba(lineC, pal.lineA * lerp(0.5, 1.05, dpt));
       ctx.lineWidth = lerp(0.6, 1.3, dpt);
       ctx.stroke();
-    }
-
-    // stones, each held in raked rings
-    for (const st of this.stones) {
-      for (let ring = 1; ring <= 3; ring++) {
-        const rr = st.r * (1.35 + ring * 0.55);
-        ctx.beginPath();
-        ctx.ellipse(st.x, st.y, rr, rr * 0.58, 0, 0, TAU);
-        ctx.strokeStyle = rgba(lineC, pal.lineA * (0.85 - ring * 0.18) * calm);
-        ctx.lineWidth = 0.9;
-        ctx.stroke();
-      }
-      ctx.beginPath();
-      ctx.ellipse(st.x, st.y, st.r, st.r * 0.62, 0, 0, TAU);
-      ctx.fillStyle = rgba(pal.stone, 0.92);
-      ctx.fill();
-      // a thin lit edge on the sun side
-      if (pal.sunA > 0.05) {
-        ctx.beginPath();
-        const side = sunX < st.x ? Math.PI * 0.75 : -Math.PI * 0.25;
-        ctx.ellipse(st.x, st.y, st.r * 0.97, st.r * 0.6, 0, side, side + Math.PI * 0.7);
-        ctx.strokeStyle = rgba(pal.halo, 0.22 * pal.sunA);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
     }
 
     // ---- filament network: mycelium / circuitry / irrigation ----

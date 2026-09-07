@@ -106,10 +106,15 @@ export class Ambience {
     this.on = !this.on;
     const now = this.ctx.currentTime;
     if (this.on) {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
-      this.master.gain.cancelScheduledValues(now);
-      this.master.gain.setTargetAtTime(0.55, now, 0.8);
-      this._nextAt = performance.now() / 1000 + 2.4;
+      const go = () => {
+        const t = this.ctx.currentTime;
+        this.master.gain.cancelScheduledValues(t);
+        this.master.gain.setValueAtTime(0.55, t);
+        this._strike(293.66, 0.14);
+        this._nextAt = performance.now() / 1000 + 4;
+      };
+      if (this.ctx.state === 'suspended') this.ctx.resume().then(go);
+      else go();
     } else {
       this.master.gain.cancelScheduledValues(now);
       this.master.gain.setTargetAtTime(0, now, 0.35);

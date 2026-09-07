@@ -62,6 +62,7 @@ addEventListener('keydown', (e) => {
 const amb = new Ambience();
 const btn = document.getElementById('sound');
 btn.hidden = false;
+btn.addEventListener('pointerdown', (e) => e.stopPropagation());
 btn.addEventListener('click', () => {
   btn.setAttribute('aria-pressed', String(amb.toggle()));
 });
