@@ -65,7 +65,7 @@ When the visitor becomes still, current in the board runs inward. Charge leaves 
 The visitor asks: *what can I make this do?*
 The system answers: *what happens when you stop doing?*
 
-Never a gimmicky "wait 5 seconds to unlock content" mechanism. Stillness should start assembling the word within a breath or two.
+Never a gimmicky "wait 5 seconds to unlock content" mechanism. The word should start assembling almost immediately when the visitor is still; movement dissolves it again. The board itself can take longer to fade in.
 
 ### Motion is simulation, not animation
 

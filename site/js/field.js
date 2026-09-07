@@ -20,6 +20,7 @@ export class Field {
     this.nodes = [];
     this.edges = [];
     this.rings = [];
+    this.age = 0;
   }
 
   resize(w, h, dpr) {
@@ -230,6 +231,8 @@ export class Field {
     const S = this.settle;
     const hasImp = S.impulses.length > 0;
     const C = Math.pow(1 - E, 1.45);
+    this.age += dt;
+    const appear = smoothstep(0.12, 4.2, this.age);
 
     const bg = ctx.createLinearGradient(0, 0, w * 0.12, h);
     bg.addColorStop(0, rgba(pal.field, 1));
@@ -257,7 +260,7 @@ export class Field {
         else ctx.lineTo(x, y);
       }
       ctx.closePath();
-      ctx.strokeStyle = rgba(pal.filament, pal.filamentA * (0.42 + 0.22 * C));
+      ctx.strokeStyle = rgba(pal.filament, pal.filamentA * (0.42 + 0.22 * C) * appear);
       ctx.lineWidth = i === 1 ? 1.25 : 0.95;
       ctx.stroke();
     }
@@ -275,7 +278,7 @@ export class Field {
 
     for (const e of this.edges) {
       const a = this.nodes[e.i], b = this.nodes[e.j];
-      const grow = e.kind === 'axon' ? R * C : C;
+      const grow = (e.kind === 'axon' ? R * C : C) * appear;
       let target = smoothstep(e.th, e.th + 0.28, grow);
       if (a.dist > 0.28 || b.dist > 0.28) target = 0;
       e.g += (target - e.g) * Math.min(1, dt * (target > e.g ? 1.15 : 3.2));
@@ -309,7 +312,7 @@ export class Field {
 
     for (const n of this.nodes) {
       const hub = n.kind === 'hub';
-      const a = pal.filamentA * (hub ? 0.78 : 0.36) * (0.45 + 0.55 * C);
+      const a = pal.filamentA * (hub ? 0.78 : 0.36) * (0.45 + 0.55 * C) * appear;
       if (hub) {
         ctx.strokeStyle = rgba(pal.filament, a);
         ctx.lineWidth = 0.85;

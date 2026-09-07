@@ -161,7 +161,7 @@ export class Reveal {
     for (const sp of this.sparks) {
       const ox = sp.from ? sp.from.x : sp.hx;
       const oy = sp.from ? sp.from.y : sp.hy;
-      const ki = smoothstep(sp.st, 0.58 + sp.st * 0.18, R);
+      const ki = smoothstep(sp.st * 0.35, 0.26 + sp.st * 0.1, R);
       const e = ki * ki * (3 - 2 * ki);
       const hold = e * (1 - clamp(E * 1.7, 0, 0.88));
       const mid = Math.sin(hold * Math.PI);
