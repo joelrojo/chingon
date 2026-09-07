@@ -7,8 +7,8 @@
 - **Type studies** — prototype uses a system serif stack (Iowan Old Style / Palatino / Georgia); the real one-word type study is still open.
 - **Reveal choice** — prototype live; judge the four candidates by feel (below).
 - **Fragment** — working line is `technology · time · tierra`. Swap if Joel wants two words only (`technology × tierra`) or a different third T (threshold, thread, tend).
-- **DNS at Spaceship** — add the GitHub Pages A/AAAA records below. Do not touch MX (`smtp.google.com`) or the Google site-verification TXT. After DNS lands, GitHub issues a Let's Encrypt cert and we flip `https_enforced`. Until then Pages is HTTP-only on the custom domain.
-- **Analytics** — **counter.dev** when Joel makes an account (visits/day, referrals, no cookies, no IP fingerprinting, pay-when-ready). GoatCounter is the backup if we ever want paths or self-host. No Google. No banner.
+- **HTTPS enforce** — DNS already points at GitHub Pages (2026-09-06). Flip `https_enforced` after GitHub mints the cert. MX / Google TXT left alone.
+- **Analytics** — **counter.dev** is wired on `/` (`site/index.html`, Pacific UTC−7). Visits/day + referrers; no cookies, no IP fingerprinting, no banner. GoatCounter remains the backup if we ever want paths or self-host.
 
 ## Decided
 
@@ -34,13 +34,13 @@ AAAA   @     2606:50c0:8003::153
 CNAME  www   joelrojo.github.io
 ```
 
-Leave MX and existing TXT alone.
+Leave MX and existing TXT alone. Done 2026-09-06 — MX/TXT untouched.
 
 ## HTTPS, host, analytics (2026-09-06)
 
-- GitHub Pages **is HTTPS** for `chingon.io` after the Spaceship A records exist and GitHub mints the cert (minutes to a few hours). Enforce HTTPS only after that — enforcing now fails because the cert doesn't exist yet. `www` CNAME to `joelrojo.github.io`.
+- GitHub Pages **is HTTPS** for `chingon.io` after the Spaceship A records exist and GitHub mints the cert (minutes to a few hours). A/AAAA + `www` CNAME landed 2026-09-06; HTTP garden is live. Enforce HTTPS only after Let's Encrypt finishes (`https_error` was still `peer_failed_verification` at flip time).
 - 3D later does not require a new host. Three.js / WebGL / GSAP / R3F ship as static JS + models. GitHub Pages stays free and enough until a single asset wants a real CDN (big `.glb`, HDR, textures). Then Cloudflare Pages, still free.
-- Visits: **counter.dev** (2026-09-06). Same privacy class as GoatCounter, smaller, closer to "how many people showed up today." No cookies, no logging, no IP fingerprinting. Unique visitors/day + referrers. Pay when ready. GoatCounter if we later need per-path or self-host. Not GA. No banner. Wire the beacon after Joel creates the site.
+- Visits: **counter.dev** (2026-09-06; wired 2026-09-06). Same privacy class as GoatCounter, smaller, closer to "how many people showed up today." No cookies, no logging, no IP fingerprinting. Unique visitors/day + referrers. Pay when ready. GoatCounter if we later need per-path or self-host. Not GA. No banner. Beacon lives in `site/index.html`.
 
 ## Later: 3D scroll / soil vision (Joel, 2026-09-06)
 
