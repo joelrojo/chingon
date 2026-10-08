@@ -20,6 +20,7 @@
 - **Reveal (2026-09-06, night)** — current in the board writes `chingón` from the rim; wisps keep moving through the letters. Four-candidate prototype closed.
 - **Dissolve (2026-09-07)** — shelved. Pointer displaces the field; it does not reset the word. Revisit later.
 - **Sound (2026-09-06, night)** — opt-out atmospheric pad (Odyssey / Dune / Matrix / mycelium). No dings. No handpan.
+- **Aya (2026-10-07)** — the field edition sits at `/aya`, unlinked from the doorway. Source stays in `~/dev/aya`. Rebuild with `npm run build:relic` and replace `site/aya`. `/` does not mention it.
 
 ### Spaceship DNS (keep Google Workspace)
 
